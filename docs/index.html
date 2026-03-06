@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Model Price Tracker</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f8f9fa; --fg: #1a1a2e; --fg2: #555;
+    --border: #e0e0e0; --accent: #4361ee; --green: #2ec4b6; --red: #e63946;
+    --card-bg: #fff; --input-bg: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f1a; --bg2: #1a1a2e; --fg: #e0e0e0; --fg2: #999;
+      --border: #2a2a3e; --accent: #6c8cff; --green: #2ec4b6; --red: #e63946;
+      --card-bg: #1a1a2e; --input-bg: #2a2a3e;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; padding: 30px 0 20px; position: relative; }
+  header h1 { font-size: 2em; font-weight: 700; }
+  header p { color: var(--fg2); margin-top: 4px; }
+  .lang-select { position: absolute; top: 30px; right: 0; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.8em; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+  .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-card .label { font-size: 0.8em; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .value { font-size: 1.6em; font-weight: 700; margin-top: 4px; }
+  .stat-card .sub { font-size: 0.75em; color: var(--fg2); margin-top: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; align-items: center; }
+  .controls input, .controls select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.9em; }
+  .controls input[type="text"] { flex: 1; min-width: 200px; }
+  .controls select { min-width: 160px; }
+  .controls label { font-size: 0.85em; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .count { font-size: 0.85em; color: var(--fg2); margin-left: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85em; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { background: var(--bg2); cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1; font-weight: 600; }
+  th:hover { color: var(--accent); }
+  th .arrow { font-size: 0.7em; margin-left: 4px; }
+  tr:hover { background: var(--bg2); }
+  .price { font-variant-numeric: tabular-nums; }
+  .price-low { color: var(--green); }
+  .price-high { color: var(--red); }
+  .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+  .badge-yes { background: #2ec4b620; color: var(--green); }
+  .badge-no { background: #e6394620; color: var(--red); }
+  .provider-tag { font-size: 0.75em; padding: 2px 8px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--border); text-decoration: none; color: var(--fg); }
+  a.provider-tag:hover { border-color: var(--accent); color: var(--accent); }
+  .source-tag { font-size: 0.7em; padding: 2px 6px; border-radius: 4px; background: var(--bg2); color: var(--fg2); text-decoration: none; }
+  a.source-link:hover { border: 1px solid var(--accent); color: var(--accent); }
+  .table-wrap { overflow-x: auto; }
+  .chart-section { margin: 30px 0; }
+  .chart-section h2 { font-size: 1.2em; margin-bottom: 12px; }
+  .bar-chart { display: flex; flex-direction: column; gap: 4px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; font-size: 0.8em; }
+  .bar-label { width: 240px; text-align: right; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; }
+  .bar-container { flex: 1; height: 22px; background: var(--bg2); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 6px; color: #fff; font-size: 0.75em; font-weight: 600; min-width: fit-content; }
+  .bar-input { background: linear-gradient(90deg, #4361ee, #6c8cff); }
+  .bar-output { background: linear-gradient(90deg, #e63946, #ff6b6b); }
+  .legend { display: flex; gap: 16px; margin-bottom: 10px; font-size: 0.8em; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  footer { text-align: center; padding: 30px 0; font-size: 0.8em; color: var(--fg2); }
+  footer a { color: var(--accent); text-decoration: none; }
+  .disclaimer { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; font-size: 0.85em; color: var(--fg2); max-width: 700px; margin: 0 auto; }
+  .loading { text-align: center; padding: 60px; font-size: 1.2em; color: var(--fg2); }
+  .free-tag { background: var(--green); color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 0.7em; font-weight: 700; }
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .bar-label { width: 140px; font-size: 0.7em; }
+    .controls { flex-direction: column; }
+    .controls input[type="text"], .controls select { width: 100%; }
+    .count { margin-left: 0; }
+    .lang-select { position: static; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>AI Model Price Tracker</h1>
+    <p id="updated">Loading...</p>
+    <select class="lang-select" id="langSelect"></select>
+  </header>
+
+  <p class="disclaimer" id="disclaimer"></p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <input type="text" id="search">
+    <select id="providerFilter"></select>
+    <label><input type="checkbox" id="filterVision"> <span id="labelVision"></span></label>
+    <label><input type="checkbox" id="filterTools"> <span id="labelTools"></span></label>
+    <label><input type="checkbox" id="hideFree"> <span id="labelHideFree"></span></label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="tableHead"></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="chart-section">
+    <h2 id="chartTitle"></h2>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#4361ee"></span> <span id="legendInput"></span></span>
+      <span><span class="legend-dot" style="background:#e63946"></span> <span id="legendOutput"></span></span>
+    </div>
+    <div class="bar-chart" id="chart"></div>
+  </div>
+
+  <footer>
+    <p id="footerSources"></p>
+    <p style="margin-top:4px" id="footerIssue"></p>
+  </footer>
+</div>
+
+<script>
+// ─── i18n ────────────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    title: 'AI Model Price Tracker',
+    loading: 'Loading...',
+    failedLoad: 'Failed to load data.',
+    lastUpdated: 'Last updated',
+    disclaimer: 'Pricing data is collected from third-party sources and may be outdated, incomplete, or incorrect. Always verify on each provider\'s official pricing page. Not affiliated with any AI provider.',
+    providers: 'Providers', models: 'Models',
+    cheapestInput: 'Cheapest Input', mostExpensive: 'Most Expensive',
+    avgInput: 'Avg Input $/1M', avgOutput: 'Avg Output $/1M',
+    searchPlaceholder: 'Search models or providers...',
+    allProviders: 'All Providers',
+    vision: 'Vision', tools: 'Tools', hideFree: 'Hide Free',
+    colProvider: 'Provider', colModel: 'Model',
+    colInput: 'Input $/1M', colOutput: 'Output $/1M', colCached: 'Cached $/1M',
+    colContext: 'Context', colVision: 'Vision', colTools: 'Tools', colSource: 'Source',
+    chartTitle: 'Top 20 Models by Input Price ($/1M tokens)',
+    input: 'Input', output: 'Output',
+    footerSources: 'Data sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Found an issue? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Report it</a> or <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">submit a PR</a>',
+    yes: 'Yes', no: 'No', free: 'FREE',
+    countOf: (f, t) => `${f} / ${t} models`,
+  },
+  ko: {
+    title: 'AI 모델 가격 추적기',
+    loading: '로딩 중...',
+    failedLoad: '데이터를 불러오지 못했습니다.',
+    lastUpdated: '마지막 업데이트',
+    disclaimer: '가격 데이터는 제3자 소스에서 수집되며 오래되거나 불완전하거나 부정확할 수 있습니다. 항상 각 제공사의 공식 가격 페이지에서 확인하세요. 어떤 AI 제공사와도 제휴 관계가 없습니다.',
+    providers: '제공사', models: '모델',
+    cheapestInput: '최저 입력가', mostExpensive: '최고가',
+    avgInput: '평균 입력 $/1M', avgOutput: '평균 출력 $/1M',
+    searchPlaceholder: '모델 또는 제공사 검색...',
+    allProviders: '모든 제공사',
+    vision: '비전', tools: '도구', hideFree: '무료 숨기기',
+    colProvider: '제공사', colModel: '모델',
+    colInput: '입력 $/1M', colOutput: '출력 $/1M', colCached: '캐시 $/1M',
+    colContext: '컨텍스트', colVision: '비전', colTools: '도구', colSource: '출처',
+    chartTitle: '입력 가격 상위 20개 모델 ($/1M 토큰)',
+    input: '입력', output: '출력',
+    footerSources: '데이터 소스: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: '문제를 발견하셨나요? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">리포트</a> 또는 <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR 제출</a>',
+    yes: '예', no: '아니오', free: '무료',
+    countOf: (f, t) => `${f} / ${t} 모델`,
+  },
+  ja: {
+    title: 'AIモデル価格トラッカー',
+    loading: '読み込み中...',
+    failedLoad: 'データの読み込みに失敗しました。',
+    lastUpdated: '最終更新',
+    disclaimer: '価格データはサードパーティから収集されており、古い・不完全・不正確な場合があります。各プロバイダーの公式ページで必ずご確認ください。AIプロバイダーとの提携関係はありません。',
+    providers: 'プロバイダー', models: 'モデル',
+    cheapestInput: '最安入力', mostExpensive: '最高価格',
+    avgInput: '平均入力 $/1M', avgOutput: '平均出力 $/1M',
+    searchPlaceholder: 'モデルまたはプロバイダーを検索...',
+    allProviders: '全プロバイダー',
+    vision: 'ビジョン', tools: 'ツール', hideFree: '無料を非表示',
+    colProvider: 'プロバイダー', colModel: 'モデル',
+    colInput: '入力 $/1M', colOutput: '出力 $/1M', colCached: 'キャッシュ $/1M',
+    colContext: 'コンテキスト', colVision: 'ビジョン', colTools: 'ツール', colSource: 'ソース',
+    chartTitle: '入力価格トップ20モデル ($/1Mトークン)',
+    input: '入力', output: '出力',
+    footerSources: 'データソース: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: '問題を発見しましたか？ <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">報告</a>または<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR</a>',
+    yes: 'はい', no: 'いいえ', free: '無料',
+    countOf: (f, t) => `${f} / ${t} モデル`,
+  },
+  'zh-CN': {
+    title: 'AI模型价格追踪器',
+    loading: '加载中...',
+    failedLoad: '数据加载失败。',
+    lastUpdated: '最后更新',
+    disclaimer: '价格数据来自第三方，可能过时、不完整或不准确。请始终在各提供商的官方页面上核实。与任何AI提供商无关联。',
+    providers: '提供商', models: '模型',
+    cheapestInput: '最低输入价', mostExpensive: '最高价',
+    avgInput: '平均输入 $/1M', avgOutput: '平均输出 $/1M',
+    searchPlaceholder: '搜索模型或提供商...',
+    allProviders: '所有提供商',
+    vision: '视觉', tools: '工具', hideFree: '隐藏免费',
+    colProvider: '提供商', colModel: '模型',
+    colInput: '输入 $/1M', colOutput: '输出 $/1M', colCached: '缓存 $/1M',
+    colContext: '上下文', colVision: '视觉', colTools: '工具', colSource: '来源',
+    chartTitle: '输入价格前20名模型 ($/1M tokens)',
+    input: '输入', output: '输出',
+    footerSources: '数据来源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: '发现问题？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">报告</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
+    yes: '是', no: '否', free: '免费',
+    countOf: (f, t) => `${f} / ${t} 个模型`,
+  },
+  'zh-TW': {
+    title: 'AI模型價格追蹤器',
+    loading: '載入中...',
+    failedLoad: '資料載入失敗。',
+    lastUpdated: '最後更新',
+    disclaimer: '價格資料來自第三方，可能過時、不完整或不準確。請務必在各供應商的官方頁面上確認。與任何AI供應商無關聯。',
+    providers: '供應商', models: '模型',
+    cheapestInput: '最低輸入價', mostExpensive: '最高價',
+    avgInput: '平均輸入 $/1M', avgOutput: '平均輸出 $/1M',
+    searchPlaceholder: '搜尋模型或供應商...',
+    allProviders: '所有供應商',
+    vision: '視覺', tools: '工具', hideFree: '隱藏免費',
+    colProvider: '供應商', colModel: '模型',
+    colInput: '輸入 $/1M', colOutput: '輸出 $/1M', colCached: '快取 $/1M',
+    colContext: '上下文', colVision: '視覺', colTools: '工具', colSource: '來源',
+    chartTitle: '輸入價格前20名模型 ($/1M tokens)',
+    input: '輸入', output: '輸出',
+    footerSources: '資料來源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: '發現問題？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">回報</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
+    yes: '是', no: '否', free: '免費',
+    countOf: (f, t) => `${f} / ${t} 個模型`,
+  },
+  es: {
+    title: 'Rastreador de Precios de Modelos de IA', loading: 'Cargando...', failedLoad: 'Error al cargar datos.', lastUpdated: 'Ultima actualizacion',
+    disclaimer: 'Los datos de precios provienen de terceros y pueden estar desactualizados, incompletos o ser incorrectos. Verifique siempre en la pagina oficial de cada proveedor. Sin afiliacion con ningun proveedor de IA.',
+    providers: 'Proveedores', models: 'Modelos', cheapestInput: 'Entrada mas barata', mostExpensive: 'Mas caro',
+    avgInput: 'Prom. Entrada $/1M', avgOutput: 'Prom. Salida $/1M', searchPlaceholder: 'Buscar modelos o proveedores...', allProviders: 'Todos los proveedores',
+    vision: 'Vision', tools: 'Herramientas', hideFree: 'Ocultar gratis',
+    colProvider: 'Proveedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Salida $/1M', colCached: 'Cache $/1M',
+    colContext: 'Contexto', colVision: 'Vision', colTools: 'Herramientas', colSource: 'Fuente',
+    chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida',
+    footerSources: 'Fuentes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Encontro un error? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> o <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
+    yes: 'Si', no: 'No', free: 'GRATIS', countOf: (f, t) => `${f} / ${t} modelos`,
+  },
+  fr: {
+    title: 'Suivi des Prix des Modeles d\'IA', loading: 'Chargement...', failedLoad: 'Echec du chargement.', lastUpdated: 'Derniere mise a jour',
+    disclaimer: 'Les donnees de prix proviennent de tiers et peuvent etre obsoletes, incompletes ou incorrectes. Verifiez toujours sur la page officielle de chaque fournisseur. Aucune affiliation avec un fournisseur d\'IA.',
+    providers: 'Fournisseurs', models: 'Modeles', cheapestInput: 'Entree la moins chere', mostExpensive: 'Le plus cher',
+    avgInput: 'Moy. Entree $/1M', avgOutput: 'Moy. Sortie $/1M', searchPlaceholder: 'Rechercher modeles ou fournisseurs...', allProviders: 'Tous les fournisseurs',
+    vision: 'Vision', tools: 'Outils', hideFree: 'Masquer gratuits',
+    colProvider: 'Fournisseur', colModel: 'Modele', colInput: 'Entree $/1M', colOutput: 'Sortie $/1M', colCached: 'Cache $/1M',
+    colContext: 'Contexte', colVision: 'Vision', colTools: 'Outils', colSource: 'Source',
+    chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie',
+    footerSources: 'Sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Un probleme ? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Signaler</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">soumettre un PR</a>',
+    yes: 'Oui', no: 'Non', free: 'GRATUIT', countOf: (f, t) => `${f} / ${t} modeles`,
+  },
+  de: {
+    title: 'KI-Modell-Preistracker', loading: 'Laden...', failedLoad: 'Daten konnten nicht geladen werden.', lastUpdated: 'Letztes Update',
+    disclaimer: 'Preisdaten stammen von Drittanbietern und konnen veraltet, unvollstandig oder fehlerhaft sein. Prufen Sie immer die offizielle Preisseite des jeweiligen Anbieters. Keine Verbindung zu einem KI-Anbieter.',
+    providers: 'Anbieter', models: 'Modelle', cheapestInput: 'Gunstigste Eingabe', mostExpensive: 'Teuerste',
+    avgInput: 'Durchschn. Eingabe $/1M', avgOutput: 'Durchschn. Ausgabe $/1M', searchPlaceholder: 'Modelle oder Anbieter suchen...', allProviders: 'Alle Anbieter',
+    vision: 'Vision', tools: 'Tools', hideFree: 'Kostenlose ausblenden',
+    colProvider: 'Anbieter', colModel: 'Modell', colInput: 'Eingabe $/1M', colOutput: 'Ausgabe $/1M', colCached: 'Cache $/1M',
+    colContext: 'Kontext', colVision: 'Vision', colTools: 'Tools', colSource: 'Quelle',
+    chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe',
+    footerSources: 'Datenquellen: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Fehler gefunden? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Melden</a> oder <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR einreichen</a>',
+    yes: 'Ja', no: 'Nein', free: 'KOSTENLOS', countOf: (f, t) => `${f} / ${t} Modelle`,
+  },
+  pt: {
+    title: 'Rastreador de Precos de Modelos de IA', loading: 'Carregando...', failedLoad: 'Falha ao carregar dados.', lastUpdated: 'Ultima atualizacao',
+    disclaimer: 'Os dados de precos sao de terceiros e podem estar desatualizados, incompletos ou incorretos. Sempre verifique na pagina oficial de cada provedor. Sem afiliacao com nenhum provedor de IA.',
+    providers: 'Provedores', models: 'Modelos', cheapestInput: 'Entrada mais barata', mostExpensive: 'Mais caro',
+    avgInput: 'Media Entrada $/1M', avgOutput: 'Media Saida $/1M', searchPlaceholder: 'Pesquisar modelos ou provedores...', allProviders: 'Todos os provedores',
+    vision: 'Visao', tools: 'Ferramentas', hideFree: 'Ocultar gratuitos',
+    colProvider: 'Provedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Saida $/1M', colCached: 'Cache $/1M',
+    colContext: 'Contexto', colVision: 'Visao', colTools: 'Ferramentas', colSource: 'Fonte',
+    chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida',
+    footerSources: 'Fontes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Encontrou um problema? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
+    yes: 'Sim', no: 'Nao', free: 'GRATIS', countOf: (f, t) => `${f} / ${t} modelos`,
+  },
+  ru: {
+    title: 'Трекер цен на модели ИИ', loading: 'Загрузка...', failedLoad: 'Не удалось загрузить данные.', lastUpdated: 'Последнее обновление',
+    disclaimer: 'Данные о ценах получены из сторонних источников и могут быть устаревшими, неполными или неточными. Всегда проверяйте на официальной странице каждого провайдера. Не связан ни с одним провайдером ИИ.',
+    providers: 'Провайдеры', models: 'Модели', cheapestInput: 'Самый дешевый вход', mostExpensive: 'Самый дорогой',
+    avgInput: 'Сред. вход $/1M', avgOutput: 'Сред. выход $/1M', searchPlaceholder: 'Поиск моделей или провайдеров...', allProviders: 'Все провайдеры',
+    vision: 'Зрение', tools: 'Инструменты', hideFree: 'Скрыть бесплатные',
+    colProvider: 'Провайдер', colModel: 'Модель', colInput: 'Вход $/1M', colOutput: 'Выход $/1M', colCached: 'Кеш $/1M',
+    colContext: 'Контекст', colVision: 'Зрение', colTools: 'Инструменты', colSource: 'Источник',
+    chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход',
+    footerSources: 'Источники: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
+    footerIssue: 'Нашли ошибку? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Сообщить</a> или <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">отправить PR</a>',
+    yes: 'Да', no: 'Нет', free: 'БЕСПЛАТНО', countOf: (f, t) => `${f} / ${t} моделей`,
+  },
+};
+
+const LANG_LABELS = {
+  en:'English', ko:'한국어', ja:'日本語', 'zh-CN':'中文(简体)', 'zh-TW':'中文(繁體)',
+  es:'Español', fr:'Français', de:'Deutsch', pt:'Português', ru:'Русский'
+};
+
+function detectLang() {
+  const saved = localStorage.getItem('lang');
+  if (saved && I18N[saved]) return saved;
+  const nav = (navigator.language || '').toLowerCase();
+  if (nav.startsWith('ko')) return 'ko';
+  if (nav.startsWith('ja')) return 'ja';
+  if (nav === 'zh-tw' || nav === 'zh-hant') return 'zh-TW';
+  if (nav.startsWith('zh')) return 'zh-CN';
+  if (nav.startsWith('es')) return 'es';
+  if (nav.startsWith('fr')) return 'fr';
+  if (nav.startsWith('de')) return 'de';
+  if (nav.startsWith('pt')) return 'pt';
+  if (nav.startsWith('ru')) return 'ru';
+  return 'en';
+}
+
+let lang = detectLang();
+function t(key) { return (I18N[lang] || I18N.en)[key] || I18N.en[key] || key; }
+
+function initLangSelect() {
+  const sel = document.getElementById('langSelect');
+  for (const [code, label] of Object.entries(LANG_LABELS)) {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = label;
+    if (code === lang) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    lang = sel.value;
+    localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang;
+    applyI18n();
+    if (data) {
+      renderStats(data.summary);
+      buildTableHead();
+      applyFilters();
+      renderChart();
+    }
+  });
+}
+
+function applyI18n() {
+  document.querySelector('header h1').textContent = t('title');
+  document.title = t('title');
+  document.getElementById('disclaimer').textContent = t('disclaimer');
+  document.getElementById('search').placeholder = t('searchPlaceholder');
+  document.getElementById('labelVision').textContent = t('vision');
+  document.getElementById('labelTools').textContent = t('tools');
+  document.getElementById('labelHideFree').textContent = t('hideFree');
+  document.getElementById('chartTitle').textContent = t('chartTitle');
+  document.getElementById('legendInput').textContent = t('input');
+  document.getElementById('legendOutput').textContent = t('output');
+  document.getElementById('footerSources').innerHTML = t('footerSources');
+  document.getElementById('footerIssue').innerHTML = t('footerIssue');
+  const pf = document.getElementById('providerFilter');
+  if (pf.options.length > 0) pf.options[0].textContent = t('allProviders');
+}
+
+// ─── Columns (dynamic labels) ───────────────────────────────────────────────
+function getColumns() {
+  return [
+    { key: 'provider', label: t('colProvider'), type: 'string' },
+    { key: 'name', label: t('colModel'), type: 'string' },
+    { key: 'input_price_per_1m', label: t('colInput'), type: 'number' },
+    { key: 'output_price_per_1m', label: t('colOutput'), type: 'number' },
+    { key: 'cached_input_price_per_1m', label: t('colCached'), type: 'number' },
+    { key: 'context_length', label: t('colContext'), type: 'number' },
+    { key: 'supports_vision', label: t('colVision'), type: 'bool' },
+    { key: 'supports_function_calling', label: t('colTools'), type: 'bool' },
+    { key: 'source', label: t('colSource'), type: 'string' },
+  ];
+}
+
+let allModels = [];
+let sortKey = 'input_price_per_1m';
+let sortAsc = true;
+let data = null;
+
+async function init() {
+  initLangSelect();
+  applyI18n();
+  document.getElementById('updated').textContent = t('loading');
+
+  try {
+    const res = await fetch('latest.json');
+    data = await res.json();
+  } catch {
+    document.getElementById('updated').textContent = t('failedLoad');
+    return;
+  }
+
+  document.getElementById('updated').textContent = `${t('lastUpdated')}: ${new Date(data.updated_at).toLocaleString(lang)}`;
+
+  allModels = [];
+  for (const p of data.providers) {
+    for (const m of p.models) {
+      allModels.push({ ...m, provider: p.display_name, official_url: p.official_pricing_url });
+    }
+  }
+
+  renderStats(data.summary);
+  populateProviderFilter(data.providers);
+  buildTableHead();
+  applyFilters();
+  renderChart();
+
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('providerFilter').addEventListener('change', applyFilters);
+  document.getElementById('filterVision').addEventListener('change', applyFilters);
+  document.getElementById('filterTools').addEventListener('change', applyFilters);
+  document.getElementById('hideFree').addEventListener('change', applyFilters);
+}
+
+function renderStats(s) {
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="label">${t('providers')}</div><div class="value">${s.total_providers}</div></div>
+    <div class="stat-card"><div class="label">${t('models')}</div><div class="value">${s.total_models}</div></div>
+    <div class="stat-card"><div class="label">${t('cheapestInput')}</div><div class="value">$${s.cheapest_model?.input_price_per_1m ?? '-'}</div><div class="sub">${s.cheapest_model?.name ?? ''}</div></div>
+    <div class="stat-card"><div class="label">${t('mostExpensive')}</div><div class="value">$${s.most_expensive_model?.input_price_per_1m ?? '-'}</div><div class="sub">${s.most_expensive_model?.name ?? ''}</div></div>
+    <div class="stat-card"><div class="label">${t('avgInput')}</div><div class="value">$${(s.average_input_price_per_1m ?? 0).toFixed(2)}</div></div>
+    <div class="stat-card"><div class="label">${t('avgOutput')}</div><div class="value">$${(s.average_output_price_per_1m ?? 0).toFixed(2)}</div></div>
+  `;
+}
+
+function populateProviderFilter(providers) {
+  const sel = document.getElementById('providerFilter');
+  sel.innerHTML = `<option value="">${t('allProviders')}</option>`;
+  for (const p of providers.sort((a,b) => a.display_name.localeCompare(b.display_name))) {
+    const opt = document.createElement('option');
+    opt.value = p.display_name;
+    opt.textContent = `${p.display_name} (${p.models.length})`;
+    sel.appendChild(opt);
+  }
+}
+
+function buildTableHead() {
+  const tr = document.getElementById('tableHead');
+  tr.innerHTML = '';
+  for (const col of getColumns()) {
+    const th = document.createElement('th');
+    th.textContent = col.label;
+    th.dataset.key = col.key;
+    if (col.key === sortKey) th.innerHTML += `<span class="arrow">${sortAsc ? '&#9650;' : '&#9660;'}</span>`;
+    th.addEventListener('click', () => {
+      if (sortKey === col.key) { sortAsc = !sortAsc; } else { sortKey = col.key; sortAsc = true; }
+      buildTableHead();
+      applyFilters();
+    });
+    tr.appendChild(th);
+  }
+}
+
+function applyFilters() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const provider = document.getElementById('providerFilter').value;
+  const vision = document.getElementById('filterVision').checked;
+  const tools = document.getElementById('filterTools').checked;
+  const hideFree = document.getElementById('hideFree').checked;
+
+  let filtered = allModels.filter(m => {
+    if (query && !m.name.toLowerCase().includes(query) && !m.provider.toLowerCase().includes(query) && !m.id.toLowerCase().includes(query)) return false;
+    if (provider && m.provider !== provider) return false;
+    if (vision && !m.supports_vision) return false;
+    if (tools && !m.supports_function_calling) return false;
+    if (hideFree && (m.input_price_per_1m == null || m.input_price_per_1m <= 0)) return false;
+    return true;
+  });
+
+  const columns = getColumns();
+  const col = columns.find(c => c.key === sortKey);
+  filtered.sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (va == null) va = col?.type === 'number' ? Infinity : '';
+    if (vb == null) vb = col?.type === 'number' ? Infinity : '';
+    if (col?.type === 'bool') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
+    if (col?.type === 'number' || col?.type === 'bool') return sortAsc ? va - vb : vb - va;
+    return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+  });
+
+  const countOf = (I18N[lang] || I18N.en).countOf || I18N.en.countOf;
+  document.getElementById('count').textContent = countOf(filtered.length, allModels.length);
+  renderTable(filtered);
+}
+
+function priceClass(val, max) {
+  if (val == null || val <= 0) return '';
+  const ratio = val / max;
+  if (ratio < 0.15) return 'price-low';
+  if (ratio > 0.6) return 'price-high';
+  return '';
+}
+
+function renderTable(models) {
+  const tbody = document.getElementById('tableBody');
+  const maxInput = Math.max(...allModels.map(m => m.input_price_per_1m || 0));
+  tbody.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for (const m of models) {
+    const tr = document.createElement('tr');
+    const isFree = m.input_price_per_1m == null || m.input_price_per_1m <= 0;
+    const providerCell = m.official_url
+      ? `<a href="${esc(m.official_url)}" target="_blank" class="provider-tag">${esc(m.provider)}</a>`
+      : `<span class="provider-tag">${esc(m.provider)}</span>`;
+    const sourceInfo = {
+      'openrouter': { label: 'OpenRouter', url: 'https://openrouter.ai/api/v1/models' },
+      'genai-prices': { label: 'genai-prices', url: 'https://github.com/pydantic/genai-prices' },
+      'litellm': { label: 'LiteLLM', url: 'https://github.com/BerriAI/litellm' },
+      'official': { label: 'Official', url: null },
+    }[m.source] || { label: m.source || '-', url: null };
+    const sourceCell = sourceInfo.url
+      ? `<a href="${esc(sourceInfo.url)}" target="_blank" class="source-tag source-link">${esc(sourceInfo.label)}</a>`
+      : `<span class="source-tag">${esc(sourceInfo.label)}</span>`;
+    tr.innerHTML = `
+      <td>${providerCell}</td>
+      <td>${esc(m.name)}</td>
+      <td class="price ${priceClass(m.input_price_per_1m, maxInput)}">${isFree ? `<span class="free-tag">${t('free')}</span>` : '$' + fmt(m.input_price_per_1m)}</td>
+      <td class="price ${priceClass(m.output_price_per_1m, maxInput)}">${isFree ? '-' : '$' + fmt(m.output_price_per_1m)}</td>
+      <td class="price">${m.cached_input_price_per_1m != null ? '$' + fmt(m.cached_input_price_per_1m) : '-'}</td>
+      <td>${m.context_length ? (m.context_length >= 1000 ? (m.context_length/1000) + 'K' : m.context_length) : '-'}</td>
+      <td>${m.supports_vision ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
+      <td>${m.supports_function_calling ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
+      <td>${sourceCell}</td>
+    `;
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
+}
+
+function renderChart() {
+  const chart = document.getElementById('chart');
+  const priced = allModels.filter(m => m.input_price_per_1m > 0 && m.output_price_per_1m > 0)
+    .sort((a, b) => b.input_price_per_1m - a.input_price_per_1m)
+    .slice(0, 20);
+  if (priced.length === 0) return;
+  const maxPrice = Math.max(...priced.map(m => Math.max(m.input_price_per_1m, m.output_price_per_1m)));
+  chart.innerHTML = priced.map(m => {
+    const inW = (m.input_price_per_1m / maxPrice * 100).toFixed(1);
+    const outW = (m.output_price_per_1m / maxPrice * 100).toFixed(1);
+    return `
+      <div class="bar-row">
+        <div class="bar-label" title="${esc(m.provider)}: ${esc(m.name)}">${esc(m.name)}</div>
+        <div class="bar-container"><div class="bar-fill bar-input" style="width:${inW}%">$${fmt(m.input_price_per_1m)}</div></div>
+        <div class="bar-container"><div class="bar-fill bar-output" style="width:${outW}%">$${fmt(m.output_price_per_1m)}</div></div>
+      </div>`;
+  }).join('');
+}
+
+function fmt(n) {
+  if (n == null) return '-';
+  if (n >= 1) return n.toFixed(2);
+  if (n >= 0.01) return n.toFixed(3);
+  return n.toFixed(4);
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "ai-model-price-tracker",
+  "version": "0.1.0",
+  "description": "Daily AI model pricing tracker with GitHub Actions and GitHub Pages dashboard",
+  "type": "module",
+  "scripts": {
+    "collect": "node scripts/collect-prices.mjs",
+    "scrape": "node scripts/scrape-official.mjs",
+    "validate": "node scripts/validate.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-model-price-tracker/ai-model-price-tracker.git"
+  },
+  "author": "ai-model-price-tracker",
+  "homepage": "https://ai-model-price-tracker.github.io/ai-model-price-tracker/",
+  "bugs": {
+    "url": "https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "pricing",
+    "openai",
+    "anthropic",
+    "gemini",
+    "tracker",
+    "github-actions",
+    "github-pages"
+  ],
+  "dependencies": {
+    "playwright": "^1.50.0"
+  },
+  "license": "MIT"
+}
