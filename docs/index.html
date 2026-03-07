@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="Compare AI model prices across providers. Track LLM costs from OpenRouter, LiteLLM, and more. Updated daily.">
 <meta property="og:title" content="AI Model Price Tracker">
 <meta property="og:description" content="Compare AI model prices across providers. Track LLM costs from OpenRouter, LiteLLM, and more.">
@@ -119,15 +119,6 @@
     .controls { flex-direction: column; }
     .controls input[type="text"], .controls select { width: 100%; }
     .count { margin-left: 0; }
-    /* Hide Cached, InputTypes, OutputTypes on tablet */
-    th:nth-child(5), td:nth-child(5),
-    th:nth-child(8), td:nth-child(8),
-    th:nth-child(9), td:nth-child(9) { display: none; }
-  }
-  @media (max-width: 480px) {
-    /* Also hide MaxOutput and Source on phone */
-    th:nth-child(7), td:nth-child(7),
-    th:nth-child(10), td:nth-child(10) { display: none; }
   }
 </style>
 </head>
