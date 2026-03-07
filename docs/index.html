@@ -42,11 +42,6 @@
   .lang-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.8em; cursor: pointer; }
   .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 1em; color: var(--fg); line-height: 1; }
   .theme-toggle:hover { border-color: var(--accent); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
-  .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; overflow: hidden; }
-  .stat-card .label { font-size: 0.8em; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-card .value { font-size: 1.6em; font-weight: 700; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .stat-card .sub { font-size: 0.75em; color: var(--fg2); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; align-items: center; }
   .controls input, .controls select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.9em; }
   input:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -147,7 +142,6 @@
 
   <p class="disclaimer" id="disclaimer"></p>
 
-  <div class="stats" id="stats"></div>
 
   <div class="controls">
     <input type="text" id="search">
@@ -595,7 +589,7 @@ function initLangSelect() {
     document.documentElement.lang = lang;
     applyI18n();
     if (data) {
-      renderStats(data.summary);
+
       buildTableHead();
       applyFilters();
       renderChart();
@@ -666,20 +660,7 @@ async function init() {
     }
   }
 
-  // Backfill output rankings if not in summary (for older data)
-  if (!data.summary.cheapest_output_model) {
-    let co = null, eo = null;
-    for (const m of allModels) {
-      const out = m.output_price_per_1m;
-      if (out == null || out <= 0) continue;
-      if (!co || out < co.output_price_per_1m) co = m;
-      if (!eo || out > eo.output_price_per_1m) eo = m;
-    }
-    data.summary.cheapest_output_model = co;
-    data.summary.most_expensive_output_model = eo;
-  }
 
-  renderStats(data.summary);
   populateProviderFilter(data.providers);
   populateSourceFilter();
   buildTableHead();
@@ -700,18 +681,6 @@ async function init() {
   });
 }
 
-function renderStats(s) {
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card"><div class="label">${t('providers')}</div><div class="value">${s.total_providers}</div></div>
-    <div class="stat-card"><div class="label">${t('models')}</div><div class="value">${s.total_models}</div></div>
-    <div class="stat-card"><div class="label">${t('cheapestInput')}</div><div class="value price-low">$${s.cheapest_model?.input_price_per_1m ?? '-'}</div><div class="sub">${s.cheapest_model?.name ?? ''}</div></div>
-    <div class="stat-card"><div class="label">${t('mostExpensiveInput')}</div><div class="value price-high">$${s.most_expensive_model?.input_price_per_1m ?? '-'}</div><div class="sub">${s.most_expensive_model?.name ?? ''}</div></div>
-    <div class="stat-card"><div class="label">${t('cheapestOutput')}</div><div class="value price-low">$${s.cheapest_output_model?.output_price_per_1m ?? '-'}</div><div class="sub">${s.cheapest_output_model?.name ?? ''}</div></div>
-    <div class="stat-card"><div class="label">${t('mostExpensiveOutput')}</div><div class="value price-high">$${s.most_expensive_output_model?.output_price_per_1m ?? '-'}</div><div class="sub">${s.most_expensive_output_model?.name ?? ''}</div></div>
-    <div class="stat-card"><div class="label">${t('avgInput')}</div><div class="value">$${(s.average_input_price_per_1m ?? 0).toFixed(2)}</div></div>
-    <div class="stat-card"><div class="label">${t('avgOutput')}</div><div class="value">$${(s.average_output_price_per_1m ?? 0).toFixed(2)}</div></div>
-  `;
-}
 
 function populateProviderFilter(providers) {
   const sel = document.getElementById('providerFilter');
