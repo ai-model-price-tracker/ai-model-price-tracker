@@ -449,13 +449,28 @@ async function main() {
   const merged = mergeModels(openRouterModels, genaiModels, litellmModels, officialModels);
   log(`Merged total: ${merged.length} models`);
 
+  // Filter out models with absurd prices (likely unit conversion errors in upstream data)
+  const MAX_PRICE_PER_1M = 1000;
+  const sane = merged.filter(m => {
+    const input = m.input_price_per_1m ?? 0;
+    const output = m.output_price_per_1m ?? 0;
+    if (input > MAX_PRICE_PER_1M || output > MAX_PRICE_PER_1M) {
+      log(`[FILTERED] ${m.id}: $${input}/$${output} per 1M tokens exceeds $${MAX_PRICE_PER_1M} threshold`);
+      return false;
+    }
+    return true;
+  });
+  if (sane.length < merged.length) {
+    log(`Filtered ${merged.length - sane.length} models with abnormal prices`);
+  }
+
   const sources = [];
   if (openRouterModels.length > 0) sources.push('openrouter');
   if (genaiModels.length > 0) sources.push('genai-prices');
   if (litellmModels.length > 0) sources.push('litellm');
   if (officialModels.length > 0) sources.push('official');
 
-  const providers = groupByProvider(merged);
+  const providers = groupByProvider(sane);
   const summary = buildSummary(providers);
 
   const output = {
