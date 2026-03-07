@@ -40,6 +40,7 @@
   th { background: var(--bg2); cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1; font-weight: 600; }
   th:hover { color: var(--accent); }
   th .arrow { font-size: 0.7em; margin-left: 4px; }
+  th .tip { cursor: help; font-size: 0.7em; color: var(--fg2); border: 1px solid var(--border); border-radius: 50%; padding: 0 4px; margin-left: 4px; vertical-align: super; }
   tr:hover { background: var(--bg2); }
   .price { font-variant-numeric: tabular-nums; }
   .price-low { color: var(--green); }
@@ -147,6 +148,13 @@ const I18N = {
     footerSources: 'Data sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Found an issue? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Report it</a> or <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">submit a PR</a>',
     yes: 'Yes', no: 'No', free: 'FREE',
+    tipInput: 'Cost per 1 million input tokens (USD)',
+    tipOutput: 'Cost per 1 million output tokens (USD)',
+    tipCached: 'Discounted price when using cached/repeated prompts',
+    tipContext: 'Maximum number of tokens the model can process at once',
+    tipVision: 'Whether the model can process image inputs',
+    tipTools: 'Whether the model supports function calling / tool use',
+    tipSource: 'Where the pricing data was collected from',
     countOf: (f, t) => `${f} / ${t} models`,
   },
   ko: {
@@ -169,6 +177,13 @@ const I18N = {
     footerSources: '데이터 소스: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '문제를 발견하셨나요? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">리포트</a> 또는 <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR 제출</a>',
     yes: '예', no: '아니오', free: '무료',
+    tipInput: '100만 입력 토큰당 비용 (USD)',
+    tipOutput: '100만 출력 토큰당 비용 (USD)',
+    tipCached: '캐시된 프롬프트 사용 시 할인 가격',
+    tipContext: '모델이 한 번에 처리할 수 있는 최대 토큰 수',
+    tipVision: '이미지 입력 처리 가능 여부',
+    tipTools: '함수 호출 / 도구 사용 지원 여부',
+    tipSource: '가격 데이터 수집 출처',
     countOf: (f, t) => `${f} / ${t} 모델`,
   },
   ja: {
@@ -191,6 +206,13 @@ const I18N = {
     footerSources: 'データソース: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '問題を発見しましたか？ <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">報告</a>または<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR</a>',
     yes: 'はい', no: 'いいえ', free: '無料',
+    tipInput: '100万入力トークンあたりのコスト（USD）',
+    tipOutput: '100万出力トークンあたりのコスト（USD）',
+    tipCached: 'キャッシュ済みプロンプト使用時の割引価格',
+    tipContext: 'モデルが一度に処理できる最大トークン数',
+    tipVision: '画像入力の処理が可能かどうか',
+    tipTools: '関数呼び出し/ツール使用をサポートするかどうか',
+    tipSource: '価格データの収集元',
     countOf: (f, t) => `${f} / ${t} モデル`,
   },
   'zh-CN': {
@@ -213,6 +235,13 @@ const I18N = {
     footerSources: '数据来源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '发现问题？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">报告</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
     yes: '是', no: '否', free: '免费',
+    tipInput: '每100万输入token的费用（美元）',
+    tipOutput: '每100万输出token的费用（美元）',
+    tipCached: '使用缓存提示时的折扣价格',
+    tipContext: '模型一次可处理的最大token数',
+    tipVision: '是否支持处理图像输入',
+    tipTools: '是否支持函数调用/工具使用',
+    tipSource: '价格数据的采集来源',
     countOf: (f, t) => `${f} / ${t} 个模型`,
   },
   'zh-TW': {
@@ -235,6 +264,13 @@ const I18N = {
     footerSources: '資料來源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '發現問題？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">回報</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
     yes: '是', no: '否', free: '免費',
+    tipInput: '每100萬輸入token的費用（美元）',
+    tipOutput: '每100萬輸出token的費用（美元）',
+    tipCached: '使用快取提示時的折扣價格',
+    tipContext: '模型一次可處理的最大token數',
+    tipVision: '是否支援處理圖像輸入',
+    tipTools: '是否支援函數調用/工具使用',
+    tipSource: '價格資料的採集來源',
     countOf: (f, t) => `${f} / ${t} 個模型`,
   },
   es: {
@@ -248,7 +284,15 @@ const I18N = {
     chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida',
     footerSources: 'Fuentes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontro un error? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> o <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
-    yes: 'Si', no: 'No', free: 'GRATIS', countOf: (f, t) => `${f} / ${t} modelos`,
+    yes: 'Si', no: 'No', free: 'GRATIS',
+    tipInput: 'Costo por 1 millon de tokens de entrada (USD)',
+    tipOutput: 'Costo por 1 millon de tokens de salida (USD)',
+    tipCached: 'Precio con descuento al usar prompts en cache',
+    tipContext: 'Numero maximo de tokens que el modelo puede procesar a la vez',
+    tipVision: 'Si el modelo puede procesar imagenes como entrada',
+    tipTools: 'Si el modelo soporta llamadas a funciones / uso de herramientas',
+    tipSource: 'De donde se recopilaron los datos de precios',
+    countOf: (f, t) => `${f} / ${t} modelos`,
   },
   fr: {
     title: 'Suivi des Prix des Modeles d\'IA', loading: 'Chargement...', failedLoad: 'Echec du chargement.', lastUpdated: 'Derniere mise a jour',
@@ -261,7 +305,15 @@ const I18N = {
     chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie',
     footerSources: 'Sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Un probleme ? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Signaler</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">soumettre un PR</a>',
-    yes: 'Oui', no: 'Non', free: 'GRATUIT', countOf: (f, t) => `${f} / ${t} modeles`,
+    yes: 'Oui', no: 'Non', free: 'GRATUIT',
+    tipInput: 'Cout pour 1 million de tokens en entree (USD)',
+    tipOutput: 'Cout pour 1 million de tokens en sortie (USD)',
+    tipCached: 'Prix reduit lors de l\'utilisation de prompts en cache',
+    tipContext: 'Nombre maximum de tokens que le modele peut traiter a la fois',
+    tipVision: 'Si le modele peut traiter des images en entree',
+    tipTools: 'Si le modele supporte l\'appel de fonctions / l\'utilisation d\'outils',
+    tipSource: 'D\'ou proviennent les donnees de prix',
+    countOf: (f, t) => `${f} / ${t} modeles`,
   },
   de: {
     title: 'KI-Modell-Preistracker', loading: 'Laden...', failedLoad: 'Daten konnten nicht geladen werden.', lastUpdated: 'Letztes Update',
@@ -274,7 +326,15 @@ const I18N = {
     chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe',
     footerSources: 'Datenquellen: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Fehler gefunden? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Melden</a> oder <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR einreichen</a>',
-    yes: 'Ja', no: 'Nein', free: 'KOSTENLOS', countOf: (f, t) => `${f} / ${t} Modelle`,
+    yes: 'Ja', no: 'Nein', free: 'KOSTENLOS',
+    tipInput: 'Kosten pro 1 Million Eingabe-Tokens (USD)',
+    tipOutput: 'Kosten pro 1 Million Ausgabe-Tokens (USD)',
+    tipCached: 'Ermassigter Preis bei Verwendung von gecachten Prompts',
+    tipContext: 'Maximale Anzahl an Tokens, die das Modell auf einmal verarbeiten kann',
+    tipVision: 'Ob das Modell Bildeingaben verarbeiten kann',
+    tipTools: 'Ob das Modell Funktionsaufrufe / Tool-Nutzung unterstutzt',
+    tipSource: 'Woher die Preisdaten stammen',
+    countOf: (f, t) => `${f} / ${t} Modelle`,
   },
   pt: {
     title: 'Rastreador de Precos de Modelos de IA', loading: 'Carregando...', failedLoad: 'Falha ao carregar dados.', lastUpdated: 'Ultima atualizacao',
@@ -287,7 +347,15 @@ const I18N = {
     chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida',
     footerSources: 'Fontes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontrou um problema? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
-    yes: 'Sim', no: 'Nao', free: 'GRATIS', countOf: (f, t) => `${f} / ${t} modelos`,
+    yes: 'Sim', no: 'Nao', free: 'GRATIS',
+    tipInput: 'Custo por 1 milhao de tokens de entrada (USD)',
+    tipOutput: 'Custo por 1 milhao de tokens de saida (USD)',
+    tipCached: 'Preco com desconto ao usar prompts em cache',
+    tipContext: 'Numero maximo de tokens que o modelo pode processar de uma vez',
+    tipVision: 'Se o modelo pode processar imagens como entrada',
+    tipTools: 'Se o modelo suporta chamadas de funcao / uso de ferramentas',
+    tipSource: 'De onde os dados de precos foram coletados',
+    countOf: (f, t) => `${f} / ${t} modelos`,
   },
   ru: {
     title: 'Трекер цен на модели ИИ', loading: 'Загрузка...', failedLoad: 'Не удалось загрузить данные.', lastUpdated: 'Последнее обновление',
@@ -300,7 +368,15 @@ const I18N = {
     chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход',
     footerSources: 'Источники: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Нашли ошибку? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Сообщить</a> или <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">отправить PR</a>',
-    yes: 'Да', no: 'Нет', free: 'БЕСПЛАТНО', countOf: (f, t) => `${f} / ${t} моделей`,
+    yes: 'Да', no: 'Нет', free: 'БЕСПЛАТНО',
+    tipInput: 'Стоимость за 1 миллион входных токенов (USD)',
+    tipOutput: 'Стоимость за 1 миллион выходных токенов (USD)',
+    tipCached: 'Скидка при использовании кешированных промптов',
+    tipContext: 'Максимальное количество токенов, которое модель может обработать за раз',
+    tipVision: 'Может ли модель обрабатывать изображения на входе',
+    tipTools: 'Поддерживает ли модель вызов функций / использование инструментов',
+    tipSource: 'Откуда были собраны данные о ценах',
+    countOf: (f, t) => `${f} / ${t} моделей`,
   },
 };
 
@@ -373,13 +449,13 @@ function getColumns() {
   return [
     { key: 'provider', label: t('colProvider'), type: 'string' },
     { key: 'name', label: t('colModel'), type: 'string' },
-    { key: 'input_price_per_1m', label: t('colInput'), type: 'number' },
-    { key: 'output_price_per_1m', label: t('colOutput'), type: 'number' },
-    { key: 'cached_input_price_per_1m', label: t('colCached'), type: 'number' },
-    { key: 'context_length', label: t('colContext'), type: 'number' },
-    { key: 'supports_vision', label: t('colVision'), type: 'bool' },
-    { key: 'supports_function_calling', label: t('colTools'), type: 'bool' },
-    { key: 'source', label: t('colSource'), type: 'string' },
+    { key: 'input_price_per_1m', label: t('colInput'), tip: t('tipInput'), type: 'number' },
+    { key: 'output_price_per_1m', label: t('colOutput'), tip: t('tipOutput'), type: 'number' },
+    { key: 'cached_input_price_per_1m', label: t('colCached'), tip: t('tipCached'), type: 'number' },
+    { key: 'context_length', label: t('colContext'), tip: t('tipContext'), type: 'number' },
+    { key: 'supports_vision', label: t('colVision'), tip: t('tipVision'), type: 'bool' },
+    { key: 'supports_function_calling', label: t('colTools'), tip: t('tipTools'), type: 'bool' },
+    { key: 'source', label: t('colSource'), tip: t('tipSource'), type: 'string' },
   ];
 }
 
@@ -451,6 +527,7 @@ function buildTableHead() {
   for (const col of getColumns()) {
     const th = document.createElement('th');
     th.textContent = col.label;
+    if (col.tip) th.innerHTML += `<span class="tip" title="${esc(col.tip)}">?</span>`;
     th.dataset.key = col.key;
     if (col.key === sortKey) th.innerHTML += `<span class="arrow">${sortAsc ? '&#9650;' : '&#9660;'}</span>`;
     th.addEventListener('click', () => {
