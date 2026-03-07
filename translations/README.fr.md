@@ -152,6 +152,19 @@ Chaque scraper est un fichier séparé dans [`scripts/scrapers/`](scripts/scrape
 
 Vous avez trouvé une erreur ? Veuillez [ouvrir un issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) ou [soumettre un PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glossaire
+
+| Terme | Description |
+|-------|-------------|
+| **Token** | L'unite de base utilisee par les modeles d'IA pour traiter le texte. 1 token ≈ 3/4 d'un mot. Les prix sont par million de tokens. |
+| **Tokens d'entree** | Texte/donnees envoyes au modele (prompt, contexte, instructions). |
+| **Tokens de sortie** | Texte genere par le modele en reponse. Generalement plus cher que l'entree. |
+| **Fenetre de contexte** | Max de tokens qu'un modele peut traiter dans une conversation (entree + sortie combines). |
+| **Entree en cache** | Prix reduit lors de la reutilisation du meme prefixe de prompt entre les requetes. |
+| **Tarification par lots** | Prix reduits pour les requetes en masse non urgentes traitees de maniere asynchrone. |
+| **Appel de fonctions** | Capacite du modele a appeler des outils externes ou des APIs pendant la generation. |
+| **Vision** | Capacite du modele a traiter et comprendre les images en entree. |
+
 ## Données collectées
 
 | Champ | Description |
@@ -159,9 +172,9 @@ Vous avez trouvé une erreur ? Veuillez [ouvrir un issue](https://github.com/ai-
 | `input_price_per_1m` | Coût pour 1M de tokens d'entrée (USD) |
 | `output_price_per_1m` | Coût pour 1M de tokens de sortie (USD) |
 | `cached_input_price_per_1m` | Coût réduit pour 1M de tokens d'entrée en cache |
-| `context_length` | Taille maximale de la fenêtre de contexte |
-| `supports_vision` | Support d'entrée d'images |
-| `supports_function_calling` | Support d'utilisation d'outils |
+| `context_length` | Taille max de la fenetre de contexte (en tokens) |
+| `supports_vision` | Si le modele peut traiter des images en entree |
+| `supports_function_calling` | Si le modele peut appeler des outils/fonctions externes |
 | `source` | Source des données (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Fournisseurs suivis

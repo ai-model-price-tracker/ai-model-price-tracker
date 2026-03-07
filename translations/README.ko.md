@@ -152,6 +152,19 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 오류를 발견하셨나요? [이슈를 열거나](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) [PR을 제출](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)해 주세요.
 
+## 용어 사전
+
+| 용어 | 설명 |
+|------|------|
+| **토큰 (Token)** | AI 모델이 텍스트를 처리하는 기본 단위. 한국어 기준 1토큰 ≈ 1~2글자. 가격은 100만 토큰당 표시됩니다. |
+| **입력 토큰** | 모델에 보내는 텍스트/데이터 (프롬프트, 맥락, 지시사항). |
+| **출력 토큰** | 모델이 생성하는 응답 텍스트. 보통 입력보다 비쌉니다. |
+| **컨텍스트 윈도우** | 모델이 한 대화에서 처리할 수 있는 최대 토큰 수 (입력 + 출력 합산). |
+| **캐시 입력** | 동일한 프롬프트 앞부분을 재사용할 때 적용되는 할인 가격. |
+| **배치 가격** | 긴급하지 않은 대량 요청을 위한 할인 가격. 응답이 몇 시간 걸리지만 비용이 크게 절감됩니다. |
+| **함수 호출** | 모델이 생성 과정에서 외부 도구나 API를 호출하는 기능. |
+| **비전** | 모델이 이미지 입력을 처리하고 이해하는 기능. |
+
 ## 수집 데이터
 
 | 필드 | 설명 |
@@ -159,9 +172,9 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 | `input_price_per_1m` | 100만 입력 토큰당 비용 (USD) |
 | `output_price_per_1m` | 100만 출력 토큰당 비용 (USD) |
 | `cached_input_price_per_1m` | 100만 캐시 입력 토큰당 할인 비용 |
-| `context_length` | 최대 컨텍스트 윈도우 크기 |
-| `supports_vision` | 이미지 입력 지원 |
-| `supports_function_calling` | 도구 사용 지원 |
+| `context_length` | 최대 컨텍스트 윈도우 크기 (토큰 단위) |
+| `supports_vision` | 모델의 이미지 입력 처리 가능 여부 |
+| `supports_function_calling` | 모델의 외부 도구/함수 호출 가능 여부 |
 | `source` | 데이터 소스 (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## 추적 제공업체

@@ -152,6 +152,19 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 エラーを見つけましたか？[Issueを作成](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues)するか、[PRを提出](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)してください。
 
+## 用語集
+
+| 用語 | 説明 |
+|------|------|
+| **トークン** | AIモデルがテキストを処理する基本単位。日本語では1トークン≈1〜2文字。価格は100万トークンあたりで表示されます。 |
+| **入力トークン** | モデルに送るテキスト/データ（プロンプト、文脈、指示）。 |
+| **出力トークン** | モデルが生成する応答テキスト。通常、入力より高価です。 |
+| **コンテキストウィンドウ** | 1回の会話でモデルが処理できる最大トークン数（入力＋出力の合計）。 |
+| **キャッシュ入力** | 同じプロンプトの先頭部分を再利用する際の割引価格。 |
+| **バッチ料金** | 緊急でない大量リクエスト向けの割引料金。応答に数時間かかりますが、大幅にコスト削減できます。 |
+| **関数呼び出し** | モデルが生成過程で外部ツールやAPIを呼び出す機能。 |
+| **ビジョン** | モデルが画像入力を処理・理解する機能。 |
+
 ## 収集データ
 
 | フィールド | 説明 |
@@ -159,9 +172,9 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 | `input_price_per_1m` | 100万入力トークンあたりのコスト（USD） |
 | `output_price_per_1m` | 100万出力トークンあたりのコスト（USD） |
 | `cached_input_price_per_1m` | 100万キャッシュ入力トークンあたりの割引コスト |
-| `context_length` | 最大コンテキストウィンドウサイズ |
-| `supports_vision` | 画像入力サポート |
-| `supports_function_calling` | ツール使用サポート |
+| `context_length` | 最大コンテキストウィンドウサイズ（トークン単位） |
+| `supports_vision` | モデルが画像入力を処理できるかどうか |
+| `supports_function_calling` | モデルが外部ツール/関数を呼び出せるかどうか |
 | `source` | データソース（`openrouter`、`genai-prices`、`litellm`、`official`） |
 
 ## 追跡プロバイダー

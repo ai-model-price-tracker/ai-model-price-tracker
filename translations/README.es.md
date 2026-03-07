@@ -152,6 +152,19 @@ Cada scraper es un archivo separado en [`scripts/scrapers/`](scripts/scrapers/) 
 
 ¿Encontraste un error? Por favor [abre un issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) o [envia un PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glosario
+
+| Termino | Descripcion |
+|---------|-------------|
+| **Token** | La unidad basica que usan los modelos de IA para procesar texto. 1 token ≈ 3/4 de una palabra. Los precios son por 1 millon de tokens. |
+| **Tokens de entrada** | Texto/datos que envias al modelo (prompt, contexto, instrucciones). |
+| **Tokens de salida** | Texto que el modelo genera como respuesta. Generalmente mas caro que la entrada. |
+| **Ventana de contexto** | Max tokens que un modelo puede procesar en una conversacion (entrada + salida combinados). |
+| **Entrada en cache** | Precio con descuento al reutilizar el mismo prefijo de prompt entre solicitudes. |
+| **Precio por lotes** | Precios reducidos para solicitudes masivas no urgentes procesadas de forma asincrona. |
+| **Llamada a funciones** | Capacidad del modelo de llamar herramientas externas o APIs durante la generacion. |
+| **Vision** | Capacidad del modelo de procesar y comprender imagenes como entrada. |
+
 ## Datos recopilados
 
 | Campo | Descripcion |
@@ -159,9 +172,9 @@ Cada scraper es un archivo separado en [`scripts/scrapers/`](scripts/scrapers/) 
 | `input_price_per_1m` | Costo por 1M de tokens de entrada (USD) |
 | `output_price_per_1m` | Costo por 1M de tokens de salida (USD) |
 | `cached_input_price_per_1m` | Costo con descuento por 1M de tokens de entrada en cache |
-| `context_length` | Tamano maximo de la ventana de contexto |
-| `supports_vision` | Soporte de entrada de imagenes |
-| `supports_function_calling` | Soporte de uso de herramientas |
+| `context_length` | Tamano maximo de la ventana de contexto (en tokens) |
+| `supports_vision` | Si el modelo puede procesar imagenes como entrada |
+| `supports_function_calling` | Si el modelo puede llamar herramientas/funciones externas |
 | `source` | Fuente de datos (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Proveedores rastreados

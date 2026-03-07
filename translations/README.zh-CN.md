@@ -152,6 +152,19 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 发现错误？请[提交Issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues)或[提交PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)。
 
+## 术语表
+
+| 术语 | 说明 |
+|------|------|
+| **Token（令牌）** | AI模型处理文本的基本单位。中文约1个token≈1~2个汉字。价格按每100万个token显示。 |
+| **输入token** | 发送给模型的文本/数据（提示词、上下文、指令）。 |
+| **输出token** | 模型生成的回复文本。通常比输入更贵。 |
+| **上下文窗口** | 模型在一次对话中可处理的最大token数（输入+输出合计）。 |
+| **缓存输入** | 重复使用相同提示前缀时的折扣价格。 |
+| **批量定价** | 面向非紧急大批量请求的折扣定价。响应可能需要数小时，但成本大幅降低。 |
+| **函数调用** | 模型在生成过程中调用外部工具或API的能力。 |
+| **视觉** | 模型处理和理解图像输入的能力。 |
+
 ## 收集的数据
 
 | 字段 | 描述 |
@@ -159,9 +172,9 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 | `input_price_per_1m` | 每100万输入token的费用（美元） |
 | `output_price_per_1m` | 每100万输出token的费用（美元） |
 | `cached_input_price_per_1m` | 每100万缓存输入token的折扣费用 |
-| `context_length` | 最大上下文窗口大小 |
-| `supports_vision` | 图像输入支持 |
-| `supports_function_calling` | 工具使用支持 |
+| `context_length` | 最大上下文窗口大小（token数） |
+| `supports_vision` | 模型是否能处理图像输入 |
+| `supports_function_calling` | 模型是否能调用外部工具/函数 |
 | `source` | 数据来源（`openrouter`、`genai-prices`、`litellm`、`official`） |
 
 ## 追踪的提供商
