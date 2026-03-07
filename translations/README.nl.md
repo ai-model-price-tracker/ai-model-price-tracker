@@ -178,24 +178,29 @@ Een fout gevonden? [Open een issue](https://github.com/ai-model-price-tracker/ai
 ## Gevolgde Aanbieders
 
 ### 16 grote aanbieders met officiële prijs-URL's
-| Aanbieder | Officiële Prijspagina |
-|-----------|----------------------|
-| OpenAI | [platform.openai.com/docs/pricing](https://platform.openai.com/docs/pricing) |
-| Anthropic | [docs.anthropic.com/en/docs/about-claude/models](https://docs.anthropic.com/en/docs/about-claude/models) |
-| Google Gemini | [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) |
-| Google Vertex AI | [cloud.google.com/vertex-ai/generative-ai/pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) |
-| DeepSeek | [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing) |
-| Mistral | [mistral.ai/pricing](https://mistral.ai/pricing) |
-| Cohere | [cohere.com/pricing](https://cohere.com/pricing) |
-| Perplexity | [docs.perplexity.ai/guides/pricing](https://docs.perplexity.ai/guides/pricing) |
-| Groq | [groq.com/pricing](https://groq.com/pricing) |
-| Together AI | [together.ai/pricing](https://www.together.ai/pricing) |
-| xAI (Grok) | [docs.x.ai/docs/models](https://docs.x.ai/docs/models) |
-| Amazon Bedrock | [aws.amazon.com/bedrock/pricing](https://aws.amazon.com/bedrock/pricing/) |
-| Azure OpenAI | [azure.microsoft.com/pricing/details/azure-openai](https://azure.microsoft.com/en-us/pricing/details/azure-openai/) |
-| Qwen (Alibaba) | [help.aliyun.com/model-studio](https://help.aliyun.com/zh/model-studio/getting-started/models) |
-| NVIDIA | [build.nvidia.com](https://build.nvidia.com/) |
-| AI21 Labs | [ai21.com/pricing](https://www.ai21.com/pricing) |
+| Provider | Models | Official Pricing |
+|----------|--------|-----------------|
+| Amazon Bedrock | 455 | [aws.amazon.com/bedrock/pricing](https://aws.amazon.com/bedrock/pricing/) |
+| OpenAI | 295 | [platform.openai.com/docs/pricing](https://platform.openai.com/docs/pricing) |
+| Fireworks AI | 244 | [fireworks.ai/pricing](https://fireworks.ai/pricing) |
+| Azure OpenAI | 137 | [azure.microsoft.com/en-us/pricing/details/azure-openai](https://azure.microsoft.com/en-us/pricing/details/azure-openai/) |
+| Google | 126 | [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| Mistral | 109 | [mistral.ai/pricing](https://mistral.ai/pricing) |
+| Together AI | 104 | [www.together.ai/pricing](https://www.together.ai/pricing) |
+| Anthropic | 85 | [docs.anthropic.com/en/docs/about-claude/models](https://docs.anthropic.com/en/docs/about-claude/models) |
+| DeepInfra | 67 | [deepinfra.com/pricing](https://deepinfra.com/pricing) |
+| Qwen (Alibaba) | 54 | [help.aliyun.com/zh/model-studio/getting-started/models](https://help.aliyun.com/zh/model-studio/getting-started/models) |
+| xAI (Grok) | 52 | [docs.x.ai/docs/models](https://docs.x.ai/docs/models) |
+| Groq | 40 | [groq.com/pricing](https://groq.com/pricing) |
+| Replicate | 40 | [replicate.com/pricing](https://replicate.com/pricing) |
+| Perplexity | 38 | [docs.perplexity.ai/guides/pricing](https://docs.perplexity.ai/guides/pricing) |
+| DeepSeek | 27 | [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing) |
+| Cohere | 17 | [cohere.com/pricing](https://cohere.com/pricing) |
+| Meta (Llama) | 17 | [llama.meta.com](https://llama.meta.com/) |
+| SambaNova | 16 | [sambanova.ai](https://sambanova.ai/) |
+| AI21 Labs | 15 | [www.ai21.com/pricing](https://www.ai21.com/pricing) |
+| Cerebras | 11 | [cerebras.ai/pricing](https://cerebras.ai/pricing) |
+| NVIDIA | 8 | [build.nvidia.com](https://build.nvidia.com/) |
 
 Plus **100+ extra aanbieders** automatisch verzameld via OpenRouter, genai-prices en LiteLLM.
 

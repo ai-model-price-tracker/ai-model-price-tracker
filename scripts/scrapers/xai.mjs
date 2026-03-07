@@ -28,7 +28,7 @@ export async function scrape(page) {
 
       if (inputPrice && outputPrice) {
         models.push({
-          provider: 'x-ai',
+          provider: 'xai',
           id: `x-ai/${modelName.toLowerCase().replace(/\s+/g, '-')}`,
           name: modelName,
           input_price_per_1m: round(parseFloat(inputPrice[1])),

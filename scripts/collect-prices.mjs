@@ -1,31 +1,42 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, join } from 'path';
 
-// Provider display names and official pricing URLs
+// Normalize variant slugs to canonical form
+const SLUG_ALIASES = {
+  mistralai: 'mistral',
+  together_ai: 'together',
+  'x-ai': 'xai',
+  cohere_chat: 'cohere',
+  gemini: 'google',
+  bedrock: 'amazon',
+  bedrock_converse: 'amazon',
+  bedrock_mantle: 'amazon',
+  amazon_nova: 'amazon',
+};
+
+function normalizeSlug(slug) {
+  return SLUG_ALIASES[slug] || slug;
+}
+
+// Provider display names and official pricing URLs (canonical slugs only)
 const PROVIDERS = {
   'openai': { display: 'OpenAI', url: 'https://platform.openai.com/docs/pricing' },
   'anthropic': { display: 'Anthropic', url: 'https://docs.anthropic.com/en/docs/about-claude/models' },
   'google': { display: 'Google', url: 'https://ai.google.dev/gemini-api/docs/pricing' },
   'deepseek': { display: 'DeepSeek', url: 'https://api-docs.deepseek.com/quick_start/pricing' },
-  'mistralai': { display: 'Mistral', url: 'https://mistral.ai/pricing' },
   'mistral': { display: 'Mistral', url: 'https://mistral.ai/pricing' },
   'meta-llama': { display: 'Meta (Llama)', url: 'https://llama.meta.com/' },
   'cohere': { display: 'Cohere', url: 'https://cohere.com/pricing' },
-  'cohere_chat': { display: 'Cohere', url: 'https://cohere.com/pricing' },
   'perplexity': { display: 'Perplexity', url: 'https://docs.perplexity.ai/guides/pricing' },
   'groq': { display: 'Groq', url: 'https://groq.com/pricing' },
   'together': { display: 'Together AI', url: 'https://www.together.ai/pricing' },
-  'together_ai': { display: 'Together AI', url: 'https://www.together.ai/pricing' },
-  'x-ai': { display: 'xAI (Grok)', url: 'https://docs.x.ai/docs/models' },
   'xai': { display: 'xAI (Grok)', url: 'https://docs.x.ai/docs/models' },
   'amazon': { display: 'Amazon Bedrock', url: 'https://aws.amazon.com/bedrock/pricing/' },
-  'bedrock': { display: 'Amazon Bedrock', url: 'https://aws.amazon.com/bedrock/pricing/' },
   'microsoft': { display: 'Azure OpenAI', url: 'https://azure.microsoft.com/en-us/pricing/details/azure-openai/' },
   'azure': { display: 'Azure OpenAI', url: 'https://azure.microsoft.com/en-us/pricing/details/azure-openai/' },
   'qwen': { display: 'Qwen (Alibaba)', url: 'https://help.aliyun.com/zh/model-studio/getting-started/models' },
   'nvidia': { display: 'NVIDIA', url: 'https://build.nvidia.com/' },
   'ai21': { display: 'AI21 Labs', url: 'https://www.ai21.com/pricing' },
-  'gemini': { display: 'Google', url: 'https://ai.google.dev/gemini-api/docs/pricing' },
   'cerebras': { display: 'Cerebras', url: 'https://cerebras.ai/pricing' },
   'fireworks_ai': { display: 'Fireworks AI', url: 'https://fireworks.ai/pricing' },
   'deepinfra': { display: 'DeepInfra', url: 'https://deepinfra.com/pricing' },
@@ -279,7 +290,7 @@ function combineModels(openRouterModels, genaiModels, litellmModels, officialMod
 function groupByProvider(models) {
   const groups = {};
   for (const m of models) {
-    const slug = m.provider;
+    const slug = normalizeSlug(m.provider);
     if (!groups[slug]) {
       const info = PROVIDERS[slug] || { display: slug, url: null };
       groups[slug] = {

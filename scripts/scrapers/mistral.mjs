@@ -30,7 +30,7 @@ export async function scrape(page) {
         const prices = [...rowText.matchAll(/\$([0-9.]+)/g)].map(m => parseFloat(m[1]));
         if (prices.length >= 2 && !models.some(m => m.name === modelName)) {
           models.push({
-            provider: 'mistralai',
+            provider: 'mistral',
             id: `mistralai/${modelName.toLowerCase().replace(/\s+/g, '-')}`,
             name: modelName,
             input_price_per_1m: round(prices[0]),
@@ -58,7 +58,7 @@ export async function scrape(page) {
       const prices = [...section.matchAll(/\$([0-9.]+)/g)].map(m => parseFloat(m[1]));
       if (prices.length >= 2 && !models.some(m => m.name === modelName)) {
         models.push({
-          provider: 'mistralai',
+          provider: 'mistral',
           id: `mistralai/${modelName.toLowerCase().replace(/\s+/g, '-')}`,
           name: modelName,
           input_price_per_1m: round(prices[0]),
