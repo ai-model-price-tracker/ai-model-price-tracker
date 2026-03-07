@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Model Price Tracker</title>
+<meta name="description" content="Compare AI model prices across providers. Track LLM costs from OpenRouter, LiteLLM, and more. Updated daily.">
+<meta property="og:title" content="AI Model Price Tracker">
+<meta property="og:description" content="Compare AI model prices across providers. Track LLM costs from OpenRouter, LiteLLM, and more.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+<title>AI Model Price Tracker - Compare LLM Costs</title>
 <style>
   :root {
     --bg: #ffffff; --bg2: #f8f9fa; --fg: #1a1a2e; --fg2: #555;
@@ -11,19 +17,31 @@
     --card-bg: #fff; --input-bg: #fff;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg: #0f0f1a; --bg2: #1a1a2e; --fg: #e0e0e0; --fg2: #999;
       --border: #2a2a3e; --accent: #6c8cff; --green: #2ec4b6; --red: #e63946;
       --card-bg: #1a1a2e; --input-bg: #2a2a3e;
     }
   }
+  :root[data-theme="dark"] {
+    --bg: #0f0f1a; --bg2: #1a1a2e; --fg: #e0e0e0; --fg2: #999;
+    --border: #2a2a3e; --accent: #6c8cff; --green: #2ec4b6; --red: #e63946;
+    --card-bg: #1a1a2e; --input-bg: #2a2a3e;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
   .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-  header { text-align: center; padding: 30px 0 20px; position: relative; }
+  header { padding: 30px 0 20px; position: relative; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; }
+  .header-left { display: flex; align-items: baseline; gap: 12px; }
   header h1 { font-size: 2em; font-weight: 700; }
+  .header-links { font-size: 0.8em; }
+  .header-links a { color: var(--accent); text-decoration: none; }
+  .header-links a:hover { text-decoration: underline; }
+  .header-right { text-align: right; display: flex; align-items: center; gap: 12px; }
   header p { color: var(--fg2); margin-top: 4px; }
-  .lang-select { position: absolute; top: 30px; right: 0; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.8em; cursor: pointer; }
+  .lang-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.8em; cursor: pointer; }
+  .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 1em; color: var(--fg); line-height: 1; }
+  .theme-toggle:hover { border-color: var(--accent); }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
   .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
   .stat-card .label { font-size: 0.8em; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -31,6 +49,7 @@
   .stat-card .sub { font-size: 0.75em; color: var(--fg2); margin-top: 2px; }
   .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; align-items: center; }
   .controls input, .controls select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.9em; }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .controls input[type="text"] { flex: 1; min-width: 200px; }
   .controls select { min-width: 160px; }
   .controls label { font-size: 0.85em; display: flex; align-items: center; gap: 4px; cursor: pointer; }
@@ -44,13 +63,10 @@
   th .arrow { font-size: 0.7em; margin-left: 4px; }
   th .tip { cursor: help; font-size: 0.7em; color: var(--fg2); border: 1px solid var(--border); border-radius: 50%; padding: 0 4px; margin-left: 4px; vertical-align: super; position: relative; }
   th .tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; top: 120%; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 4px 10px; border-radius: 6px; font-size: 1.1em; font-weight: 400; white-space: nowrap; z-index: 1000; pointer-events: none; }
-  tr:hover { background: var(--bg2); }
+  tr:hover { background: var(--bg2); cursor: pointer; }
   .price { font-variant-numeric: tabular-nums; }
   .price-low { color: var(--green); }
   .price-high { color: var(--red); }
-  .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
-  .badge-yes { background: #2ec4b620; color: var(--green); }
-  .badge-no { background: #e6394620; color: var(--red); }
   .provider-tag { font-size: 0.75em; padding: 2px 8px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--border); text-decoration: none; color: var(--fg); }
   a.provider-tag:hover { border-color: var(--accent); color: var(--accent); }
   .source-tag { font-size: 0.7em; padding: 2px 6px; border-radius: 4px; background: var(--bg2); color: var(--fg2); text-decoration: none; }
@@ -73,6 +89,7 @@
   .disclaimer { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; font-size: 0.85em; color: var(--fg2); max-width: 700px; margin: 0 auto; }
   .loading { text-align: center; padding: 60px; font-size: 1.2em; color: var(--fg2); }
   .free-tag { background: var(--green); color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 0.7em; font-weight: 700; }
+  .mod-tag { display: inline-block; font-size: 0.7em; padding: 1px 4px; border-radius: 3px; margin: 0 1px; background: var(--bg2); color: var(--fg2); font-weight: 600; border: 1px solid var(--border); }
   .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
   .pagination button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); cursor: pointer; font-size: 0.85em; }
   .pagination button:hover { border-color: var(--accent); color: var(--accent); }
@@ -80,25 +97,52 @@
   .pagination button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   .pagination .page-info { font-size: 0.85em; color: var(--fg2); }
   .page-size-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.85em; }
-  td.model-desc { cursor: help; position: relative; }
-  td.model-desc .desc-preview { display: none; position: absolute; left: 0; top: 100%; background: var(--fg); color: var(--bg); padding: 8px 12px; border-radius: 6px; font-size: 0.85em; max-width: 400px; white-space: normal; word-break: break-word; z-index: 1000; pointer-events: none; line-height: 1.4; }
-  td.model-desc:hover .desc-preview { display: block; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; max-width: 640px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 24px; position: relative; }
+  .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.4em; cursor: pointer; color: var(--fg2); }
+  .modal-close:hover { color: var(--fg); }
+  .modal h2 { font-size: 1.2em; margin-bottom: 4px; word-break: break-all; }
+  .modal .modal-provider { font-size: 0.85em; color: var(--fg2); margin-bottom: 12px; }
+  .modal .modal-desc { font-size: 0.85em; color: var(--fg2); margin-bottom: 16px; line-height: 1.5; }
+  .modal-section { margin-bottom: 16px; }
+  .modal-section h3 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg2); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 0.85em; }
+  .modal-grid dt { color: var(--fg2); }
+  .modal-grid dd { font-weight: 600; text-align: right; }
+  .no-results { text-align: center; padding: 40px; color: var(--fg2); font-size: 1em; }
   @media (max-width: 768px) {
+    header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header-right { width: 100%; justify-content: space-between; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     .bar-label { width: 140px; font-size: 0.7em; }
     .controls { flex-direction: column; }
     .controls input[type="text"], .controls select { width: 100%; }
     .count { margin-left: 0; }
-    .lang-select { position: static; margin-top: 8px; }
+    /* Hide Cached, InputTypes, OutputTypes on tablet */
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(8), td:nth-child(8),
+    th:nth-child(9), td:nth-child(9) { display: none; }
+  }
+  @media (max-width: 480px) {
+    /* Also hide MaxOutput and Source on phone */
+    th:nth-child(7), td:nth-child(7),
+    th:nth-child(10), td:nth-child(10) { display: none; }
   }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <h1>AI Model Price Tracker</h1>
-    <p id="updated">Loading...</p>
-    <select class="lang-select" id="langSelect"></select>
+    <div class="header-left">
+      <h1>AI Model Price Tracker</h1>
+      <span class="header-links"><a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker" target="_blank">GitHub</a></span>
+    </div>
+    <div class="header-right">
+      <p id="updated">Loading...</p>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+      <select class="lang-select" id="langSelect"></select>
+    </div>
   </header>
 
   <p class="disclaimer" id="disclaimer"></p>
@@ -108,8 +152,7 @@
   <div class="controls">
     <input type="text" id="search">
     <select id="providerFilter"></select>
-    <label><input type="checkbox" id="filterVision"> <span id="labelVision"></span></label>
-    <label><input type="checkbox" id="filterTools"> <span id="labelTools"></span></label>
+    <select id="sourceFilter"></select>
     <label><input type="checkbox" id="hideFree"> <span id="labelHideFree"></span></label>
     <span class="count" id="count"></span>
   </div>
@@ -134,6 +177,13 @@
     <div class="bar-chart" id="chart"></div>
   </div>
 
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
   <footer>
     <p id="footerSources"></p>
     <p style="margin-top:4px" id="footerIssue"></p>
@@ -141,6 +191,27 @@
 </div>
 
 <script>
+// ─── Theme ──────────────────────────────────────────────────────────────────
+(function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.dataset.theme = saved;
+  const btn = document.getElementById('themeToggle');
+  function updateIcon() {
+    const isDark = document.documentElement.dataset.theme === 'dark' ||
+      (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  }
+  updateIcon();
+  btn.addEventListener('click', () => {
+    const isDark = document.documentElement.dataset.theme === 'dark' ||
+      (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+    updateIcon();
+  });
+})();
+
 // ─── i18n ────────────────────────────────────────────────────────────────────
 const I18N = {
   en: {
@@ -153,11 +224,11 @@ const I18N = {
     cheapestInput: 'Cheapest Input', mostExpensive: 'Most Expensive',
     avgInput: 'Avg Input $/1M', avgOutput: 'Avg Output $/1M',
     searchPlaceholder: 'Search models or providers...',
-    allProviders: 'All Providers',
-    vision: 'Vision', tools: 'Tools', hideFree: 'Hide Free',
+    allProviders: 'All Providers', allSources: 'All Sources',
+    hideFree: 'Hide Free',
     colProvider: 'Provider', colModel: 'Model',
     colInput: 'Input $/1M', colOutput: 'Output $/1M', colCached: 'Cached $/1M',
-    colContext: 'Context', colMaxOutput: 'Max Output', colVision: 'Vision', colTools: 'Tools', colSource: 'Source',
+    colContext: 'Context', colMaxOutput: 'Max Output', colSource: 'Source',
     chartTitle: 'Top 20 Models by Input Price ($/1M tokens)',
     input: 'Input', output: 'Output', perPage: 'per page', page: 'Page',
     footerSources: 'Data sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
@@ -168,9 +239,16 @@ const I18N = {
     tipCached: 'Discounted price when using cached/repeated prompts',
     tipContext: 'Maximum number of input tokens the model can process at once',
     tipMaxOutput: 'Maximum number of output tokens the model can generate',
-    tipVision: 'Whether the model can process image inputs',
-    tipTools: 'Whether the model supports function calling / tool use',
     tipSource: 'Where the pricing data was collected from',
+    colInputMod: 'Input Types', colOutputMod: 'Output Types',
+    tipInputMod: 'Supported input types (text, image, audio, video, file)',
+    tipOutputMod: 'Supported output types (text, image, audio)',
+    noResults: 'No models match your filters.',
+    secPricing: 'Pricing', secLimits: 'Limits', secCaps: 'Capabilities', secArch: 'Architecture', secInfo: 'Info',
+    mInputPrice: 'Input / 1M', mOutputPrice: 'Output / 1M', mCachedPrice: 'Cached Input / 1M',
+    mContextLen: 'Context Length', mMaxOutput: 'Max Output Tokens',
+    mVision: 'Vision', mFuncCall: 'Function Calling', mStreaming: 'Streaming',
+    mInputMod: 'Input Modalities', mOutputMod: 'Output Modalities', mSource: 'Source', mCreated: 'Created',
     countOf: (f, t) => `${f} / ${t} models`,
   },
   ko: {
@@ -183,11 +261,11 @@ const I18N = {
     cheapestInput: '최저 입력가', mostExpensive: '최고가',
     avgInput: '평균 입력 $/1M', avgOutput: '평균 출력 $/1M',
     searchPlaceholder: '모델 또는 제공사 검색...',
-    allProviders: '모든 제공사',
-    vision: '비전', tools: '도구', hideFree: '무료 숨기기',
+    allProviders: '모든 제공사', allSources: '모든 출처',
+    hideFree: '무료 숨기기',
     colProvider: '제공사', colModel: '모델',
     colInput: '입력 $/1M', colOutput: '출력 $/1M', colCached: '캐시 $/1M',
-    colContext: '컨텍스트', colMaxOutput: '최대 출력', colVision: '비전', colTools: '도구', colSource: '출처',
+    colContext: '컨텍스트', colMaxOutput: '최대 출력', colSource: '출처',
     chartTitle: '입력 가격 상위 20개 모델 ($/1M 토큰)',
     input: '입력', output: '출력', perPage: '개씩', page: '페이지',
     footerSources: '데이터 소스: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
@@ -198,9 +276,16 @@ const I18N = {
     tipCached: '캐시된 프롬프트 사용 시 할인 가격',
     tipContext: '모델이 한 번에 처리할 수 있는 최대 입력 토큰 수',
     tipMaxOutput: '모델이 생성할 수 있는 최대 출력 토큰 수',
-    tipVision: '이미지 입력 처리 가능 여부',
-    tipTools: '함수 호출 / 도구 사용 지원 여부',
     tipSource: '가격 데이터 수집 출처',
+    colInputMod: '입력 유형', colOutputMod: '출력 유형',
+    tipInputMod: '지원하는 입력 유형 (텍스트, 이미지, 오디오, 비디오, 파일)',
+    tipOutputMod: '지원하는 출력 유형 (텍스트, 이미지, 오디오)',
+        noResults: '필터에 맞는 모델이 없습니다.',
+    secPricing: '가격', secLimits: '제한', secCaps: '기능', secArch: '아키텍처', secInfo: '정보',
+    mInputPrice: '입력 / 1M', mOutputPrice: '출력 / 1M', mCachedPrice: '캐시 입력 / 1M',
+    mContextLen: '컨텍스트 길이', mMaxOutput: '최대 출력 토큰',
+    mVision: '비전', mFuncCall: '함수 호출', mStreaming: '스트리밍',
+    mInputMod: '입력 모달리티', mOutputMod: '출력 모달리티', mSource: '출처', mCreated: '생성일',
     countOf: (f, t) => `${f} / ${t} 모델`,
   },
   ja: {
@@ -213,11 +298,11 @@ const I18N = {
     cheapestInput: '最安入力', mostExpensive: '最高価格',
     avgInput: '平均入力 $/1M', avgOutput: '平均出力 $/1M',
     searchPlaceholder: 'モデルまたはプロバイダーを検索...',
-    allProviders: '全プロバイダー',
-    vision: 'ビジョン', tools: 'ツール', hideFree: '無料を非表示',
+    allProviders: '全プロバイダー', allSources: '全ソース',
+    hideFree: '無料を非表示',
     colProvider: 'プロバイダー', colModel: 'モデル',
     colInput: '入力 $/1M', colOutput: '出力 $/1M', colCached: 'キャッシュ $/1M',
-    colContext: 'コンテキスト', colMaxOutput: '最大出力', colVision: 'ビジョン', colTools: 'ツール', colSource: 'ソース',
+    colContext: 'コンテキスト', colMaxOutput: '最大出力', colSource: 'ソース',
     chartTitle: '入力価格トップ20モデル ($/1Mトークン)',
     input: '入力', output: '出力', perPage: '件表示', page: 'ページ',
     footerSources: 'データソース: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
@@ -228,9 +313,16 @@ const I18N = {
     tipCached: 'キャッシュ済みプロンプト使用時の割引価格',
     tipContext: 'モデルが一度に処理できる最大入力トークン数',
     tipMaxOutput: 'モデルが生成できる最大出力トークン数',
-    tipVision: '画像入力の処理が可能かどうか',
-    tipTools: '関数呼び出し/ツール使用をサポートするかどうか',
     tipSource: '価格データの収集元',
+    colInputMod: '入力タイプ', colOutputMod: '出力タイプ',
+    tipInputMod: '対応する入力タイプ（テキスト、画像、音声、動画、ファイル）',
+    tipOutputMod: '対応する出力タイプ（テキスト、画像、音声）',
+        noResults: 'フィルターに一致するモデルがありません。',
+    secPricing: '料金', secLimits: '制限', secCaps: '機能', secArch: 'アーキテクチャ', secInfo: '情報',
+    mInputPrice: '入力 / 1M', mOutputPrice: '出力 / 1M', mCachedPrice: 'キャッシュ入力 / 1M',
+    mContextLen: 'コンテキスト長', mMaxOutput: '最大出力トークン',
+    mVision: 'ビジョン', mFuncCall: '関数呼び出し', mStreaming: 'ストリーミング',
+    mInputMod: '入力モダリティ', mOutputMod: '出力モダリティ', mSource: 'ソース', mCreated: '作成日',
     countOf: (f, t) => `${f} / ${t} モデル`,
   },
   'zh-CN': {
@@ -243,11 +335,11 @@ const I18N = {
     cheapestInput: '最低输入价', mostExpensive: '最高价',
     avgInput: '平均输入 $/1M', avgOutput: '平均输出 $/1M',
     searchPlaceholder: '搜索模型或提供商...',
-    allProviders: '所有提供商',
-    vision: '视觉', tools: '工具', hideFree: '隐藏免费',
+    allProviders: '所有提供商', allSources: '所有来源',
+    hideFree: '隐藏免费',
     colProvider: '提供商', colModel: '模型',
     colInput: '输入 $/1M', colOutput: '输出 $/1M', colCached: '缓存 $/1M',
-    colContext: '上下文', colMaxOutput: '最大输出', colVision: '视觉', colTools: '工具', colSource: '来源',
+    colContext: '上下文', colMaxOutput: '最大输出', colSource: '来源',
     chartTitle: '输入价格前20名模型 ($/1M tokens)',
     input: '输入', output: '输出', perPage: '每页', page: '页',
     footerSources: '数据来源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
@@ -258,9 +350,16 @@ const I18N = {
     tipCached: '使用缓存提示时的折扣价格',
     tipContext: '模型一次可处理的最大输入token数',
     tipMaxOutput: '模型可生成的最大输出token数',
-    tipVision: '是否支持处理图像输入',
-    tipTools: '是否支持函数调用/工具使用',
     tipSource: '价格数据的采集来源',
+    colInputMod: '输入类型', colOutputMod: '输出类型',
+    tipInputMod: '支持的输入类型（文本、图像、音频、视频、文件）',
+    tipOutputMod: '支持的输出类型（文本、图像、音频）',
+    noResults: '没有匹配筛选条件的模型。',
+    secPricing: '定价', secLimits: '限制', secCaps: '功能', secArch: '架构', secInfo: '信息',
+    mInputPrice: '输入 / 1M', mOutputPrice: '输出 / 1M', mCachedPrice: '缓存输入 / 1M',
+    mContextLen: '上下文长度', mMaxOutput: '最大输出token',
+    mVision: '视觉', mFuncCall: '函数调用', mStreaming: '流式输出',
+    mInputMod: '输入模态', mOutputMod: '输出模态', mSource: '来源', mCreated: '创建日期',
     countOf: (f, t) => `${f} / ${t} 个模型`,
   },
   'zh-TW': {
@@ -273,11 +372,11 @@ const I18N = {
     cheapestInput: '最低輸入價', mostExpensive: '最高價',
     avgInput: '平均輸入 $/1M', avgOutput: '平均輸出 $/1M',
     searchPlaceholder: '搜尋模型或供應商...',
-    allProviders: '所有供應商',
-    vision: '視覺', tools: '工具', hideFree: '隱藏免費',
+    allProviders: '所有供應商', allSources: '所有來源',
+    hideFree: '隱藏免費',
     colProvider: '供應商', colModel: '模型',
     colInput: '輸入 $/1M', colOutput: '輸出 $/1M', colCached: '快取 $/1M',
-    colContext: '上下文', colMaxOutput: '最大輸出', colVision: '視覺', colTools: '工具', colSource: '來源',
+    colContext: '上下文', colMaxOutput: '最大輸出', colSource: '來源',
     chartTitle: '輸入價格前20名模型 ($/1M tokens)',
     input: '輸入', output: '輸出', perPage: '每頁', page: '頁',
     footerSources: '資料來源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
@@ -288,19 +387,26 @@ const I18N = {
     tipCached: '使用快取提示時的折扣價格',
     tipContext: '模型一次可處理的最大輸入token數',
     tipMaxOutput: '模型可生成的最大輸出token數',
-    tipVision: '是否支援處理圖像輸入',
-    tipTools: '是否支援函數調用/工具使用',
     tipSource: '價格資料的採集來源',
+    colInputMod: '輸入類型', colOutputMod: '輸出類型',
+    tipInputMod: '支援的輸入類型（文字、圖片、音訊、影片、檔案）',
+    tipOutputMod: '支援的輸出類型（文字、圖片、音訊）',
+    noResults: '沒有符合篩選條件的模型。',
+    secPricing: '定價', secLimits: '限制', secCaps: '功能', secArch: '架構', secInfo: '資訊',
+    mInputPrice: '輸入 / 1M', mOutputPrice: '輸出 / 1M', mCachedPrice: '快取輸入 / 1M',
+    mContextLen: '上下文長度', mMaxOutput: '最大輸出token',
+    mVision: '視覺', mFuncCall: '函數呼叫', mStreaming: '串流輸出',
+    mInputMod: '輸入模態', mOutputMod: '輸出模態', mSource: '來源', mCreated: '建立日期',
     countOf: (f, t) => `${f} / ${t} 個模型`,
   },
   es: {
     title: 'Rastreador de Precios de Modelos de IA', loading: 'Cargando...', failedLoad: 'Error al cargar datos.', lastUpdated: 'Ultima actualizacion',
     disclaimer: 'Los datos de precios provienen de terceros y pueden estar desactualizados, incompletos o ser incorrectos. Verifique siempre en la pagina oficial de cada proveedor. Sin afiliacion con ningun proveedor de IA.',
     providers: 'Proveedores', models: 'Modelos', cheapestInput: 'Entrada mas barata', mostExpensive: 'Mas caro',
-    avgInput: 'Prom. Entrada $/1M', avgOutput: 'Prom. Salida $/1M', searchPlaceholder: 'Buscar modelos o proveedores...', allProviders: 'Todos los proveedores',
-    vision: 'Vision', tools: 'Herramientas', hideFree: 'Ocultar gratis',
+    avgInput: 'Prom. Entrada $/1M', avgOutput: 'Prom. Salida $/1M', searchPlaceholder: 'Buscar modelos o proveedores...', allProviders: 'Todos los proveedores', allSources: 'Todas las fuentes',
+    hideFree: 'Ocultar gratis',
     colProvider: 'Proveedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Salida $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexto', colMaxOutput: 'Max Salida', colVision: 'Vision', colTools: 'Herramientas', colSource: 'Fuente',
+    colContext: 'Contexto', colMaxOutput: 'Max Salida', colSource: 'Fuente',
     chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fuentes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontro un error? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> o <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
@@ -310,19 +416,26 @@ const I18N = {
     tipCached: 'Precio con descuento al usar prompts en cache',
     tipContext: 'Numero maximo de tokens de entrada que el modelo puede procesar',
     tipMaxOutput: 'Numero maximo de tokens de salida que el modelo puede generar',
-    tipVision: 'Si el modelo puede procesar imagenes como entrada',
-    tipTools: 'Si el modelo soporta llamadas a funciones / uso de herramientas',
     tipSource: 'De donde se recopilaron los datos de precios',
+    colInputMod: 'Tipos de entrada', colOutputMod: 'Tipos de salida',
+    tipInputMod: 'Tipos de entrada soportados (texto, imagen, audio, video, archivo)',
+    tipOutputMod: 'Tipos de salida soportados (texto, imagen, audio)',
+        noResults: 'Ningun modelo coincide con los filtros.',
+    secPricing: 'Precios', secLimits: 'Limites', secCaps: 'Capacidades', secArch: 'Arquitectura', secInfo: 'Info',
+    mInputPrice: 'Entrada / 1M', mOutputPrice: 'Salida / 1M', mCachedPrice: 'Cache Entrada / 1M',
+    mContextLen: 'Longitud de contexto', mMaxOutput: 'Max tokens de salida',
+    mVision: 'Vision', mFuncCall: 'Llamada a funciones', mStreaming: 'Streaming',
+    mInputMod: 'Modalidades de entrada', mOutputMod: 'Modalidades de salida', mSource: 'Fuente', mCreated: 'Creado',
     countOf: (f, t) => `${f} / ${t} modelos`,
   },
   fr: {
     title: 'Suivi des Prix des Modeles d\'IA', loading: 'Chargement...', failedLoad: 'Echec du chargement.', lastUpdated: 'Derniere mise a jour',
     disclaimer: 'Les donnees de prix proviennent de tiers et peuvent etre obsoletes, incompletes ou incorrectes. Verifiez toujours sur la page officielle de chaque fournisseur. Aucune affiliation avec un fournisseur d\'IA.',
     providers: 'Fournisseurs', models: 'Modeles', cheapestInput: 'Entree la moins chere', mostExpensive: 'Le plus cher',
-    avgInput: 'Moy. Entree $/1M', avgOutput: 'Moy. Sortie $/1M', searchPlaceholder: 'Rechercher modeles ou fournisseurs...', allProviders: 'Tous les fournisseurs',
-    vision: 'Vision', tools: 'Outils', hideFree: 'Masquer gratuits',
+    avgInput: 'Moy. Entree $/1M', avgOutput: 'Moy. Sortie $/1M', searchPlaceholder: 'Rechercher modeles ou fournisseurs...', allProviders: 'Tous les fournisseurs', allSources: 'Toutes les sources',
+    hideFree: 'Masquer gratuits',
     colProvider: 'Fournisseur', colModel: 'Modele', colInput: 'Entree $/1M', colOutput: 'Sortie $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexte', colMaxOutput: 'Max Sortie', colVision: 'Vision', colTools: 'Outils', colSource: 'Source',
+    colContext: 'Contexte', colMaxOutput: 'Max Sortie', colSource: 'Source',
     chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie', perPage: 'par page', page: 'Page',
     footerSources: 'Sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Un probleme ? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Signaler</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">soumettre un PR</a>',
@@ -332,19 +445,26 @@ const I18N = {
     tipCached: 'Prix reduit lors de l\'utilisation de prompts en cache',
     tipContext: 'Nombre maximum de tokens en entree que le modele peut traiter',
     tipMaxOutput: 'Nombre maximum de tokens en sortie que le modele peut generer',
-    tipVision: 'Si le modele peut traiter des images en entree',
-    tipTools: 'Si le modele supporte l\'appel de fonctions / l\'utilisation d\'outils',
     tipSource: 'D\'ou proviennent les donnees de prix',
+    colInputMod: 'Types d\'entree', colOutputMod: 'Types de sortie',
+    tipInputMod: 'Types d\'entree supportes (texte, image, audio, video, fichier)',
+    tipOutputMod: 'Types de sortie supportes (texte, image, audio)',
+        noResults: 'Aucun modele ne correspond aux filtres.',
+    secPricing: 'Tarifs', secLimits: 'Limites', secCaps: 'Capacites', secArch: 'Architecture', secInfo: 'Info',
+    mInputPrice: 'Entree / 1M', mOutputPrice: 'Sortie / 1M', mCachedPrice: 'Cache Entree / 1M',
+    mContextLen: 'Longueur du contexte', mMaxOutput: 'Max tokens de sortie',
+    mVision: 'Vision', mFuncCall: 'Appel de fonctions', mStreaming: 'Streaming',
+    mInputMod: "Modalites d'entree", mOutputMod: 'Modalites de sortie', mSource: 'Source', mCreated: 'Cree le',
     countOf: (f, t) => `${f} / ${t} modeles`,
   },
   de: {
     title: 'KI-Modell-Preistracker', loading: 'Laden...', failedLoad: 'Daten konnten nicht geladen werden.', lastUpdated: 'Letztes Update',
     disclaimer: 'Preisdaten stammen von Drittanbietern und konnen veraltet, unvollstandig oder fehlerhaft sein. Prufen Sie immer die offizielle Preisseite des jeweiligen Anbieters. Keine Verbindung zu einem KI-Anbieter.',
     providers: 'Anbieter', models: 'Modelle', cheapestInput: 'Gunstigste Eingabe', mostExpensive: 'Teuerste',
-    avgInput: 'Durchschn. Eingabe $/1M', avgOutput: 'Durchschn. Ausgabe $/1M', searchPlaceholder: 'Modelle oder Anbieter suchen...', allProviders: 'Alle Anbieter',
-    vision: 'Vision', tools: 'Tools', hideFree: 'Kostenlose ausblenden',
+    avgInput: 'Durchschn. Eingabe $/1M', avgOutput: 'Durchschn. Ausgabe $/1M', searchPlaceholder: 'Modelle oder Anbieter suchen...', allProviders: 'Alle Anbieter', allSources: 'Alle Quellen',
+    hideFree: 'Kostenlose ausblenden',
     colProvider: 'Anbieter', colModel: 'Modell', colInput: 'Eingabe $/1M', colOutput: 'Ausgabe $/1M', colCached: 'Cache $/1M',
-    colContext: 'Kontext', colMaxOutput: 'Max Ausgabe', colVision: 'Vision', colTools: 'Tools', colSource: 'Quelle',
+    colContext: 'Kontext', colMaxOutput: 'Max Ausgabe', colSource: 'Quelle',
     chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe', perPage: 'pro Seite', page: 'Seite',
     footerSources: 'Datenquellen: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Fehler gefunden? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Melden</a> oder <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR einreichen</a>',
@@ -354,19 +474,26 @@ const I18N = {
     tipCached: 'Ermassigter Preis bei Verwendung von gecachten Prompts',
     tipContext: 'Maximale Anzahl an Eingabe-Tokens, die das Modell verarbeiten kann',
     tipMaxOutput: 'Maximale Anzahl an Ausgabe-Tokens, die das Modell generieren kann',
-    tipVision: 'Ob das Modell Bildeingaben verarbeiten kann',
-    tipTools: 'Ob das Modell Funktionsaufrufe / Tool-Nutzung unterstutzt',
     tipSource: 'Woher die Preisdaten stammen',
+    colInputMod: 'Eingabetypen', colOutputMod: 'Ausgabetypen',
+    tipInputMod: 'Unterstutzte Eingabetypen (Text, Bild, Audio, Video, Datei)',
+    tipOutputMod: 'Unterstutzte Ausgabetypen (Text, Bild, Audio)',
+        noResults: 'Keine Modelle entsprechen den Filtern.',
+    secPricing: 'Preise', secLimits: 'Grenzen', secCaps: 'Fahigkeiten', secArch: 'Architektur', secInfo: 'Info',
+    mInputPrice: 'Eingabe / 1M', mOutputPrice: 'Ausgabe / 1M', mCachedPrice: 'Cache Eingabe / 1M',
+    mContextLen: 'Kontextlange', mMaxOutput: 'Max Ausgabe-Tokens',
+    mVision: 'Vision', mFuncCall: 'Funktionsaufruf', mStreaming: 'Streaming',
+    mInputMod: 'Eingabemodalitaten', mOutputMod: 'Ausgabemodalitaten', mSource: 'Quelle', mCreated: 'Erstellt',
     countOf: (f, t) => `${f} / ${t} Modelle`,
   },
   pt: {
     title: 'Rastreador de Precos de Modelos de IA', loading: 'Carregando...', failedLoad: 'Falha ao carregar dados.', lastUpdated: 'Ultima atualizacao',
     disclaimer: 'Os dados de precos sao de terceiros e podem estar desatualizados, incompletos ou incorretos. Sempre verifique na pagina oficial de cada provedor. Sem afiliacao com nenhum provedor de IA.',
     providers: 'Provedores', models: 'Modelos', cheapestInput: 'Entrada mais barata', mostExpensive: 'Mais caro',
-    avgInput: 'Media Entrada $/1M', avgOutput: 'Media Saida $/1M', searchPlaceholder: 'Pesquisar modelos ou provedores...', allProviders: 'Todos os provedores',
-    vision: 'Visao', tools: 'Ferramentas', hideFree: 'Ocultar gratuitos',
+    avgInput: 'Media Entrada $/1M', avgOutput: 'Media Saida $/1M', searchPlaceholder: 'Pesquisar modelos ou provedores...', allProviders: 'Todos os provedores', allSources: 'Todas as fontes',
+    hideFree: 'Ocultar gratuitos',
     colProvider: 'Provedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Saida $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexto', colMaxOutput: 'Max Saida', colVision: 'Visao', colTools: 'Ferramentas', colSource: 'Fonte',
+    colContext: 'Contexto', colMaxOutput: 'Max Saida', colSource: 'Fonte',
     chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fontes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontrou um problema? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
@@ -376,19 +503,26 @@ const I18N = {
     tipCached: 'Preco com desconto ao usar prompts em cache',
     tipContext: 'Numero maximo de tokens de entrada que o modelo pode processar',
     tipMaxOutput: 'Numero maximo de tokens de saida que o modelo pode gerar',
-    tipVision: 'Se o modelo pode processar imagens como entrada',
-    tipTools: 'Se o modelo suporta chamadas de funcao / uso de ferramentas',
     tipSource: 'De onde os dados de precos foram coletados',
+    colInputMod: 'Tipos de entrada', colOutputMod: 'Tipos de saida',
+    tipInputMod: 'Tipos de entrada suportados (texto, imagem, audio, video, arquivo)',
+    tipOutputMod: 'Tipos de saida suportados (texto, imagem, audio)',
+        noResults: 'Nenhum modelo corresponde aos filtros.',
+    secPricing: 'Precos', secLimits: 'Limites', secCaps: 'Capacidades', secArch: 'Arquitetura', secInfo: 'Info',
+    mInputPrice: 'Entrada / 1M', mOutputPrice: 'Saida / 1M', mCachedPrice: 'Cache Entrada / 1M',
+    mContextLen: 'Comprimento do contexto', mMaxOutput: 'Max tokens de saida',
+    mVision: 'Visao', mFuncCall: 'Chamada de funcoes', mStreaming: 'Streaming',
+    mInputMod: 'Modalidades de entrada', mOutputMod: 'Modalidades de saida', mSource: 'Fonte', mCreated: 'Criado',
     countOf: (f, t) => `${f} / ${t} modelos`,
   },
   ru: {
     title: 'Трекер цен на модели ИИ', loading: 'Загрузка...', failedLoad: 'Не удалось загрузить данные.', lastUpdated: 'Последнее обновление',
     disclaimer: 'Данные о ценах получены из сторонних источников и могут быть устаревшими, неполными или неточными. Всегда проверяйте на официальной странице каждого провайдера. Не связан ни с одним провайдером ИИ.',
     providers: 'Провайдеры', models: 'Модели', cheapestInput: 'Самый дешевый вход', mostExpensive: 'Самый дорогой',
-    avgInput: 'Сред. вход $/1M', avgOutput: 'Сред. выход $/1M', searchPlaceholder: 'Поиск моделей или провайдеров...', allProviders: 'Все провайдеры',
-    vision: 'Зрение', tools: 'Инструменты', hideFree: 'Скрыть бесплатные',
+    avgInput: 'Сред. вход $/1M', avgOutput: 'Сред. выход $/1M', searchPlaceholder: 'Поиск моделей или провайдеров...', allProviders: 'Все провайдеры', allSources: 'Все источники',
+    hideFree: 'Скрыть бесплатные',
     colProvider: 'Провайдер', colModel: 'Модель', colInput: 'Вход $/1M', colOutput: 'Выход $/1M', colCached: 'Кеш $/1M',
-    colContext: 'Контекст', colMaxOutput: 'Макс выход', colVision: 'Зрение', colTools: 'Инструменты', colSource: 'Источник',
+    colContext: 'Контекст', colMaxOutput: 'Макс выход', colSource: 'Источник',
     chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход', perPage: 'на стр.', page: 'Стр.',
     footerSources: 'Источники: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Нашли ошибку? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Сообщить</a> или <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">отправить PR</a>',
@@ -398,9 +532,16 @@ const I18N = {
     tipCached: 'Скидка при использовании кешированных промптов',
     tipContext: 'Максимальное количество входных токенов, которое модель может обработать',
     tipMaxOutput: 'Максимальное количество выходных токенов, которое модель может сгенерировать',
-    tipVision: 'Может ли модель обрабатывать изображения на входе',
-    tipTools: 'Поддерживает ли модель вызов функций / использование инструментов',
     tipSource: 'Откуда были собраны данные о ценах',
+    colInputMod: 'Типы ввода', colOutputMod: 'Типы вывода',
+    tipInputMod: 'Поддерживаемые типы ввода (текст, изображение, аудио, видео, файл)',
+    tipOutputMod: 'Поддерживаемые типы вывода (текст, изображение, аудио)',
+        noResults: 'Нет моделей, соответствующих фильтрам.',
+    secPricing: 'Цены', secLimits: 'Лимиты', secCaps: 'Возможности', secArch: 'Архитектура', secInfo: 'Инфо',
+    mInputPrice: 'Вход / 1M', mOutputPrice: 'Выход / 1M', mCachedPrice: 'Кеш вход / 1M',
+    mContextLen: 'Длина контекста', mMaxOutput: 'Макс токенов вывода',
+    mVision: 'Зрение', mFuncCall: 'Вызов функций', mStreaming: 'Потоковый вывод',
+    mInputMod: 'Входные модальности', mOutputMod: 'Выходные модальности', mSource: 'Источник', mCreated: 'Создано',
     countOf: (f, t) => `${f} / ${t} моделей`,
   },
 };
@@ -457,8 +598,6 @@ function applyI18n() {
   document.title = t('title');
   document.getElementById('disclaimer').textContent = t('disclaimer');
   document.getElementById('search').placeholder = t('searchPlaceholder');
-  document.getElementById('labelVision').textContent = t('vision');
-  document.getElementById('labelTools').textContent = t('tools');
   document.getElementById('labelHideFree').textContent = t('hideFree');
   document.getElementById('chartTitle').textContent = t('chartTitle');
   document.getElementById('legendInput').textContent = t('input');
@@ -467,6 +606,8 @@ function applyI18n() {
   document.getElementById('footerIssue').innerHTML = t('footerIssue');
   const pf = document.getElementById('providerFilter');
   if (pf.options.length > 0) pf.options[0].textContent = t('allProviders');
+  const sf = document.getElementById('sourceFilter');
+  if (sf.options.length > 0) sf.options[0].textContent = t('allSources');
 }
 
 // ─── Columns (dynamic labels) ───────────────────────────────────────────────
@@ -479,8 +620,8 @@ function getColumns() {
     { key: 'cached_input_price_per_1m', label: t('colCached'), tip: t('tipCached'), type: 'number' },
     { key: 'context_length', label: t('colContext'), tip: t('tipContext'), type: 'number' },
     { key: 'max_output_tokens', label: t('colMaxOutput'), tip: t('tipMaxOutput'), type: 'number' },
-    { key: 'supports_vision', label: t('colVision'), tip: t('tipVision'), type: 'bool' },
-    { key: 'supports_function_calling', label: t('colTools'), tip: t('tipTools'), type: 'bool' },
+    { key: 'input_modalities', label: t('colInputMod'), tip: t('tipInputMod'), type: 'modality' },
+    { key: 'output_modalities', label: t('colOutputMod'), tip: t('tipOutputMod'), type: 'modality' },
     { key: 'source', label: t('colSource'), tip: t('tipSource'), type: 'string' },
   ];
 }
@@ -499,7 +640,7 @@ async function init() {
   document.getElementById('updated').textContent = t('loading');
 
   try {
-    const res = await fetch('latest.json');
+    const res = await fetch('data/latest.json');
     data = await res.json();
   } catch {
     document.getElementById('updated').textContent = t('failedLoad');
@@ -517,15 +658,23 @@ async function init() {
 
   renderStats(data.summary);
   populateProviderFilter(data.providers);
+  populateSourceFilter();
   buildTableHead();
   applyFilters();
   renderChart();
 
   document.getElementById('search').addEventListener('input', applyFilters);
   document.getElementById('providerFilter').addEventListener('change', applyFilters);
-  document.getElementById('filterVision').addEventListener('change', applyFilters);
-  document.getElementById('filterTools').addEventListener('change', applyFilters);
+  document.getElementById('sourceFilter').addEventListener('change', applyFilters);
   document.getElementById('hideFree').addEventListener('change', applyFilters);
+
+  // Event delegation for table row clicks
+  document.getElementById('tableBody').addEventListener('click', (e) => {
+    // Don't open modal if clicking a link
+    if (e.target.closest('a')) return;
+    const tr = e.target.closest('tr');
+    if (tr && tr._model) openModal(tr._model);
+  });
 }
 
 function renderStats(s) {
@@ -550,6 +699,18 @@ function populateProviderFilter(providers) {
   }
 }
 
+function populateSourceFilter() {
+  const sel = document.getElementById('sourceFilter');
+  sel.innerHTML = `<option value="">${t('allSources')}</option>`;
+  const sources = [...new Set(allModels.map(m => m.source))].sort();
+  for (const s of sources) {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  }
+}
+
 function buildTableHead() {
   const tr = document.getElementById('tableHead');
   tr.innerHTML = '';
@@ -558,12 +719,18 @@ function buildTableHead() {
     th.textContent = col.label;
     if (col.tip) th.innerHTML += `<span class="tip" data-tip="${esc(col.tip)}">?</span>`;
     th.dataset.key = col.key;
-    if (col.key === sortKey) th.innerHTML += `<span class="arrow">${sortAsc ? '&#9650;' : '&#9660;'}</span>`;
-    th.addEventListener('click', () => {
+    th.tabIndex = 0;
+    if (col.key === sortKey) {
+      th.innerHTML += `<span class="arrow">${sortAsc ? '&#9650;' : '&#9660;'}</span>`;
+      th.setAttribute('aria-sort', sortAsc ? 'ascending' : 'descending');
+    }
+    const doSort = () => {
       if (sortKey === col.key) { sortAsc = !sortAsc; } else { sortKey = col.key; sortAsc = true; }
       buildTableHead();
       applyFilters();
-    });
+    };
+    th.addEventListener('click', doSort);
+    th.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doSort(); } });
     tr.appendChild(th);
   }
 }
@@ -571,15 +738,13 @@ function buildTableHead() {
 function applyFilters() {
   const query = document.getElementById('search').value.toLowerCase();
   const provider = document.getElementById('providerFilter').value;
-  const vision = document.getElementById('filterVision').checked;
-  const tools = document.getElementById('filterTools').checked;
+  const source = document.getElementById('sourceFilter').value;
   const hideFree = document.getElementById('hideFree').checked;
 
   let filtered = allModels.filter(m => {
     if (query && !m.name.toLowerCase().includes(query) && !m.provider.toLowerCase().includes(query) && !m.id.toLowerCase().includes(query)) return false;
     if (provider && m.provider !== provider) return false;
-    if (vision && !m.supports_vision) return false;
-    if (tools && !m.supports_function_calling) return false;
+    if (source && m.source !== source) return false;
     if (hideFree && (m.input_price_per_1m == null || m.input_price_per_1m <= 0)) return false;
     return true;
   });
@@ -588,10 +753,13 @@ function applyFilters() {
   const col = columns.find(c => c.key === sortKey);
   filtered.sort((a, b) => {
     let va = a[sortKey], vb = b[sortKey];
-    if (va == null) va = col?.type === 'number' ? Infinity : '';
-    if (vb == null) vb = col?.type === 'number' ? Infinity : '';
+    // null always goes to the end regardless of sort direction
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    if (col?.type === 'modality') { va = Array.isArray(va) ? va.length : 0; vb = Array.isArray(vb) ? vb.length : 0; }
     if (col?.type === 'bool') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
-    if (col?.type === 'number' || col?.type === 'bool') return sortAsc ? va - vb : vb - va;
+    if (col?.type === 'number' || col?.type === 'bool' || col?.type === 'modality') return sortAsc ? va - vb : vb - va;
     return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
   });
 
@@ -649,7 +817,7 @@ function renderPagination(totalPages) {
 }
 
 function priceClass(val, max) {
-  if (val == null || val <= 0) return '';
+  if (val == null || val <= 0 || max <= 0) return '';
   const ratio = val / max;
   if (ratio < 0.15) return 'price-low';
   if (ratio > 0.6) return 'price-high';
@@ -660,10 +828,13 @@ function renderTable(models) {
   const tbody = document.getElementById('tableBody');
   const maxInput = Math.max(...allModels.map(m => m.input_price_per_1m || 0));
   tbody.innerHTML = '';
+  if (models.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${getColumns().length}" class="no-results">${t('noResults')}</td></tr>`;
+    return;
+  }
   const frag = document.createDocumentFragment();
   for (const m of models) {
     const tr = document.createElement('tr');
-    const isFree = m.input_price_per_1m == null || m.input_price_per_1m <= 0;
     const providerCell = m.official_url
       ? `<a href="${esc(m.official_url)}" target="_blank" class="provider-tag">${esc(m.provider)}</a>`
       : `<span class="provider-tag">${esc(m.provider)}</span>`;
@@ -676,22 +847,32 @@ function renderTable(models) {
     const sourceCell = sourceInfo.url
       ? `<a href="${esc(sourceInfo.url)}" target="_blank" class="source-tag source-link">${esc(sourceInfo.label)}</a>`
       : `<span class="source-tag">${esc(sourceInfo.label)}</span>`;
-    const fmtTokens = (n) => !n ? '-' : n >= 1000 ? (n/1000) + 'K' : n;
-    const modelCell = m.description
-      ? `<span style="position:relative">${esc(m.name)}<span class="desc-preview">${esc(m.description)}</span></span>`
-      : esc(m.name);
+    const fmtTokens = (n) => n == null ? '-' : n >= 1000 ? Math.round(n/1000) + 'K' : String(n);
+    // Each price cell: null → "-", 0 → FREE, >0 → $value
+    const fmtPrice = (v, cls) => {
+      if (v == null) return '-';
+      if (v <= 0) return `<span class="free-tag">${t('free')}</span>`;
+      return `<span class="price ${cls}">$${fmt(v)}</span>`;
+    };
+    const modelCell = esc(m.name);
+    const MOD_ABBR = { text: 'T', image: 'I', audio: 'A', video: 'V', file: 'F' };
+    const fmtMod = (arr) => {
+      if (!Array.isArray(arr) || arr.length === 0) return '-';
+      return arr.map(v => `<span class="mod-tag">${MOD_ABBR[v] || v}</span>`).join('');
+    };
     tr.innerHTML = `
       <td>${providerCell}</td>
-      <td class="model-name${m.description ? ' model-desc' : ''}">${modelCell}</td>
-      <td class="price ${priceClass(m.input_price_per_1m, maxInput)}">${isFree ? `<span class="free-tag">${t('free')}</span>` : '$' + fmt(m.input_price_per_1m)}</td>
-      <td class="price ${priceClass(m.output_price_per_1m, maxInput)}">${isFree ? '-' : '$' + fmt(m.output_price_per_1m)}</td>
-      <td class="price">${m.cached_input_price_per_1m != null ? '$' + fmt(m.cached_input_price_per_1m) : '-'}</td>
+      <td class="model-name">${modelCell}</td>
+      <td>${fmtPrice(m.input_price_per_1m, priceClass(m.input_price_per_1m, maxInput))}</td>
+      <td>${fmtPrice(m.output_price_per_1m, priceClass(m.output_price_per_1m, maxInput))}</td>
+      <td>${fmtPrice(m.cached_input_price_per_1m, '')}</td>
       <td>${fmtTokens(m.context_length)}</td>
       <td>${fmtTokens(m.max_output_tokens)}</td>
-      <td>${m.supports_vision ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
-      <td>${m.supports_function_calling ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
+      <td>${fmtMod(m.input_modalities)}</td>
+      <td>${fmtMod(m.output_modalities)}</td>
       <td>${sourceCell}</td>
     `;
+    tr._model = m;
     frag.appendChild(tr);
   }
   tbody.appendChild(frag);
@@ -699,7 +880,14 @@ function renderTable(models) {
 
 function renderChart() {
   const chart = document.getElementById('chart');
-  const priced = allModels.filter(m => m.input_price_per_1m > 0 && m.output_price_per_1m > 0)
+  // Deduplicate: for models appearing in multiple sources, keep highest input price
+  const byName = new Map();
+  for (const m of allModels) {
+    if (!m.input_price_per_1m || m.input_price_per_1m <= 0 || !m.output_price_per_1m || m.output_price_per_1m <= 0) continue;
+    const key = m.name;
+    if (!byName.has(key) || byName.get(key).input_price_per_1m < m.input_price_per_1m) byName.set(key, m);
+  }
+  const priced = [...byName.values()]
     .sort((a, b) => b.input_price_per_1m - a.input_price_per_1m)
     .slice(0, 20);
   if (priced.length === 0) return;
@@ -728,6 +916,101 @@ function esc(s) {
   d.textContent = s;
   return d.innerHTML;
 }
+
+// ─── Model Detail Modal ─────────────────────────────────────────────────
+function openModal(m) {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+
+  const fmtP = (v) => v == null ? '-' : v <= 0 ? t('free') : '$' + fmt(v);
+  const fmtT = (n) => n == null ? '-' : n >= 1000 ? Math.round(n/1000) + 'K' : String(n);
+  const bool = (v) => v === true ? t('yes') : v === false ? t('no') : '-';
+  const arr = (v) => Array.isArray(v) ? v.join(', ') : '-';
+
+  const sections = [];
+
+  const sec = (title, rows, breakVal) => {
+    const filtered = rows.filter(([,v]) => v !== '-');
+    if (!filtered.length) return '';
+    const ddStyle = breakVal ? ' style="word-break:break-all"' : '';
+    return `<div class="modal-section"><h3>${title}</h3><dl class="modal-grid">${filtered.map(([k,v]) => `<dt>${k}</dt><dd${ddStyle}>${v}</dd>`).join('')}</dl></div>`;
+  };
+
+  // Pricing
+  sections.push(sec(t('secPricing'), [
+    [t('mInputPrice'), fmtP(m.input_price_per_1m)],
+    [t('mOutputPrice'), fmtP(m.output_price_per_1m)],
+    [t('mCachedPrice'), fmtP(m.cached_input_price_per_1m)],
+    ['Cache Write / 1M', fmtP(m.input_cache_write_price_per_1m)],
+    ['Batch Input / 1M', fmtP(m.batch_input_price_per_1m)],
+    ['Batch Output / 1M', fmtP(m.batch_output_price_per_1m)],
+    ['Reasoning Output / 1M', fmtP(m.output_reasoning_price_per_1m)],
+    ['Audio Input / 1M', fmtP(m.input_audio_price_per_1m)],
+    ['Audio Output / 1M', fmtP(m.output_audio_price_per_1m)],
+    ['Image / 1M', fmtP(m.image_price_per_1m)],
+    ['Internal Reasoning / 1M', fmtP(m.internal_reasoning_price_per_1m)],
+    ['Web Search / req', m.web_search_price_per_request != null ? '$' + fmt(m.web_search_price_per_request) : '-'],
+  ]));
+
+  // Limits
+  sections.push(sec(t('secLimits'), [
+    [t('mContextLen'), fmtT(m.context_length)],
+    [t('mMaxOutput'), fmtT(m.max_output_tokens)],
+    ['Max Completion Tokens', fmtT(m.max_completion_tokens)],
+    ['Max Images / Prompt', m.max_images_per_prompt != null ? String(m.max_images_per_prompt) : '-'],
+  ]));
+
+  // Capabilities
+  sections.push(sec(t('secCaps'), [
+    [t('mVision'), bool(m.supports_vision)],
+    [t('mFuncCall'), bool(m.supports_function_calling)],
+    ['Parallel Function Calling', bool(m.supports_parallel_function_calling)],
+    [t('mStreaming'), bool(m.supports_streaming)],
+    ['Response Schema', bool(m.supports_response_schema)],
+    ['Prompt Caching', bool(m.supports_prompt_caching)],
+    ['PDF Input', bool(m.supports_pdf_input)],
+    ['Audio Input', bool(m.supports_audio_input)],
+    ['Audio Output', bool(m.supports_audio_output)],
+    ['Web Search', bool(m.supports_web_search)],
+    ['Reasoning', bool(m.supports_reasoning)],
+    ['Computer Use', bool(m.supports_computer_use)],
+  ]));
+
+  // Architecture
+  sections.push(sec(t('secArch'), [
+    [t('mInputMod'), arr(m.input_modalities)],
+    [t('mOutputMod'), arr(m.output_modalities)],
+    ['Tokenizer', m.tokenizer || '-'],
+  ]));
+
+  // Info
+  const officialLink = m.official_url ? `<a href="${esc(m.official_url)}" target="_blank" style="color:var(--accent)">${esc(m.official_url)}</a>` : null;
+  sections.push(sec(t('secInfo'), [
+    [t('mSource'), m.source || '-'],
+    ['ID', m.id || '-'],
+    [t('mCreated'), m.created ? new Date(m.created * 1000).toLocaleDateString(lang) : '-'],
+    ['Deprecated', m.deprecated === true ? t('yes') : '-'],
+    ['Official Page', officialLink || '-'],
+  ], true));
+
+  content.innerHTML = `
+    <h2>${esc(m.name)}</h2>
+    <div class="modal-provider">${esc(m.provider)}</div>
+    ${m.description ? `<div class="modal-desc">${esc(m.description)}</div>` : ''}
+    ${sections.join('')}
+  `;
+  overlay.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
 init();
 </script>

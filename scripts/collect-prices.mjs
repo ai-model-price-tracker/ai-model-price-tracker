@@ -261,7 +261,7 @@ function processLiteLLMModels(raw) {
 
 function loadOfficialScrapedData() {
   const cwd = process.cwd();
-  const officialPath = join(cwd, 'outputs', 'official-prices.json');
+  const officialPath = join(cwd, 'docs', 'data', 'official-prices.json');
   if (!existsSync(officialPath)) return [];
   try {
     const data = JSON.parse(readFileSync(officialPath, 'utf-8'));
@@ -271,65 +271,9 @@ function loadOfficialScrapedData() {
   }
 }
 
-// Merge a supplementary model into an existing one: fill null fields, upgrade false→true booleans
-function enrichModel(existing, supplement) {
-  for (const [k, v] of Object.entries(supplement)) {
-    if (k === 'provider' || k === 'id' || k === 'source') continue;
-    if (v == null || v === false) continue;
-    // Fill nulls
-    if (existing[k] == null) {
-      existing[k] = v;
-    }
-    // Upgrade false → true for boolean capabilities
-    else if (existing[k] === false && v === true) {
-      existing[k] = v;
-    }
-  }
-}
-
-function mergeModels(openRouterModels, genaiModels, litellmModels, officialModels) {
-  const map = new Map();
-
-  // OpenRouter first (primary — richest metadata: description, modalities, pricing)
-  for (const m of openRouterModels) {
-    map.set(m.id.toLowerCase(), m);
-  }
-
-  // genai-prices supplements: fill missing fields (audio pricing, cache write pricing)
-  for (const m of genaiModels) {
-    const key = m.id.toLowerCase();
-    if (map.has(key)) {
-      enrichModel(map.get(key), m);
-    } else {
-      map.set(key, m);
-    }
-  }
-
-  // LiteLLM supplements: fill missing fields (capabilities, batch pricing, reasoning, etc.)
-  for (const m of litellmModels) {
-    const key = m.id.toLowerCase();
-    if (map.has(key)) {
-      enrichModel(map.get(key), m);
-    } else {
-      map.set(key, m);
-    }
-  }
-
-  // Official scraped data: highest trust — overwrite prices
-  for (const m of officialModels) {
-    const key = m.id.toLowerCase();
-    if (map.has(key)) {
-      const existing = map.get(key);
-      if (m.input_price_per_1m != null) existing.input_price_per_1m = m.input_price_per_1m;
-      if (m.output_price_per_1m != null) existing.output_price_per_1m = m.output_price_per_1m;
-      if (m.cached_input_price_per_1m != null) existing.cached_input_price_per_1m = m.cached_input_price_per_1m;
-      existing.source = 'official';
-    } else {
-      map.set(key, m);
-    }
-  }
-
-  return Array.from(map.values());
+// No merge — keep every source's entry separately so users can compare across sources
+function combineModels(openRouterModels, genaiModels, litellmModels, officialModels) {
+  return [...openRouterModels, ...genaiModels, ...litellmModels, ...officialModels];
 }
 
 function groupByProvider(models) {
@@ -443,35 +387,109 @@ function writeOutput(data) {
   const cwd = process.cwd();
   const today = new Date().toISOString().slice(0, 10);
 
-  const outputDir = resolve(cwd, 'outputs');
-  const docsDir = resolve(cwd, 'docs');
-  mkdirSync(outputDir, { recursive: true });
-  mkdirSync(docsDir, { recursive: true });
+  const docsDataDir = resolve(cwd, 'docs', 'data');
+  mkdirSync(docsDataDir, { recursive: true });
 
   const json = JSON.stringify(data, null, 2);
 
-  const datedPath = join(outputDir, `${today}.json`);
-  const latestPath = join(outputDir, 'latest.json');
-  const docsLatestPath = join(docsDir, 'latest.json');
+  const datedPath = join(docsDataDir, `${today}.json`);
+  const latestPath = join(docsDataDir, 'latest.json');
 
   writeFileSync(datedPath, json);
   writeFileSync(latestPath, json);
-  writeFileSync(docsLatestPath, json);
 
   log(`Written: ${datedPath}`);
   log(`Written: ${latestPath}`);
-  log(`Written: ${docsLatestPath}`);
 }
 
 function loadPreviousData() {
   const cwd = process.cwd();
-  const latestPath = join(cwd, 'outputs', 'latest.json');
+  const latestPath = join(cwd, 'docs', 'data', 'latest.json');
   if (!existsSync(latestPath)) return null;
   try {
     return JSON.parse(readFileSync(latestPath, 'utf-8'));
   } catch {
     return null;
   }
+}
+
+// ─── Diff ────────────────────────────────────────────────────────────────
+
+function writeDiff(currentData) {
+  const previous = loadPreviousData();
+  if (!previous) {
+    log('No previous data — skipping diff');
+    return;
+  }
+
+  // Build maps: key = "source/id" → model data
+  const toMap = (data) => {
+    const map = new Map();
+    for (const p of data.providers) {
+      for (const m of p.models) {
+        const key = `${m.source}/${m.id}`;
+        map.set(key, { ...m, provider_display: p.display_name });
+      }
+    }
+    return map;
+  };
+
+  const prevMap = toMap(previous);
+  const currMap = toMap(currentData);
+
+  const added = [];
+  const removed = [];
+  const priceChanged = [];
+
+  // New models
+  for (const [key, m] of currMap) {
+    if (!prevMap.has(key)) {
+      added.push({ id: m.id, name: m.name, source: m.source, provider: m.provider_display,
+        input_price_per_1m: m.input_price_per_1m, output_price_per_1m: m.output_price_per_1m });
+    }
+  }
+
+  // Removed models
+  for (const [key, m] of prevMap) {
+    if (!currMap.has(key)) {
+      removed.push({ id: m.id, name: m.name, source: m.source, provider: m.provider_display });
+    }
+  }
+
+  // Price changes
+  for (const [key, curr] of currMap) {
+    const prev = prevMap.get(key);
+    if (!prev) continue;
+    const inputChanged = prev.input_price_per_1m !== curr.input_price_per_1m;
+    const outputChanged = prev.output_price_per_1m !== curr.output_price_per_1m;
+    if (inputChanged || outputChanged) {
+      priceChanged.push({
+        id: curr.id, name: curr.name, source: curr.source, provider: curr.provider_display,
+        input: { from: prev.input_price_per_1m, to: curr.input_price_per_1m },
+        output: { from: prev.output_price_per_1m, to: curr.output_price_per_1m },
+      });
+    }
+  }
+
+  const diff = {
+    date: new Date().toISOString().slice(0, 10),
+    compared_to: previous.updated_at,
+    summary: {
+      added: added.length,
+      removed: removed.length,
+      price_changed: priceChanged.length,
+    },
+    added,
+    removed,
+    price_changed: priceChanged,
+  };
+
+  const cwd = process.cwd();
+  const docsDataDir = resolve(cwd, 'docs', 'data');
+  const diffPath = join(docsDataDir, `${diff.date}_diff.json`);
+  writeFileSync(diffPath, JSON.stringify(diff, null, 2));
+  log(`Diff written: ${diffPath}`);
+  log(`  Added: ${added.length}, Removed: ${removed.length}, Price changed: ${priceChanged.length}`);
 }
 
 // ─── Main ───────────────────────────────────────────────────────────────────
@@ -489,7 +507,7 @@ async function main() {
     log('[ERROR] All data sources failed.');
     const previous = loadPreviousData();
     if (previous) {
-      log('Preserving previous data (outputs/latest.json unchanged).');
+      log('Preserving previous data (docs/data/latest.json unchanged).');
       log('Dashboard will continue to show the last successful collection.');
       process.exit(1);
     }
@@ -508,14 +526,14 @@ async function main() {
   log(`LiteLLM: ${litellmModels.length} models`);
   log(`Official scrape: ${officialModels.length} models`);
 
-  const merged = mergeModels(openRouterModels, genaiModels, litellmModels, officialModels);
-  log(`Merged total: ${merged.length} models`);
+  const combined = combineModels(openRouterModels, genaiModels, litellmModels, officialModels);
+  log(`Combined total: ${combined.length} models (no merge, all sources kept)`);
 
   // Filter out models with absurd prices (upstream data errors, not unit mismatch in our code).
   // e.g. LiteLLM's wandb provider has input_cost_per_token=0.135 for DeepSeek R1 (should be ~0.00000055).
   // Real most expensive models are ~$75/1M (Claude Opus). $1000 threshold gives wide margin.
   const MAX_PRICE_PER_1M = 1000;
-  const sane = merged.filter(m => {
+  const sane = combined.filter(m => {
     const input = m.input_price_per_1m ?? 0;
     const output = m.output_price_per_1m ?? 0;
     if (input > MAX_PRICE_PER_1M || output > MAX_PRICE_PER_1M) {
@@ -524,8 +542,8 @@ async function main() {
     }
     return true;
   });
-  if (sane.length < merged.length) {
-    log(`Filtered ${merged.length - sane.length} models with abnormal prices`);
+  if (sane.length < combined.length) {
+    log(`Filtered ${combined.length - sane.length} models with abnormal prices`);
   }
 
   const sources = [];
@@ -558,6 +576,8 @@ async function main() {
     }
   }
 
+  // Diff must run before writeOutput overwrites latest.json
+  writeDiff(output);
   writeOutput(output);
 
   log(`Done! ${summary.total_providers} providers, ${summary.total_models} models`);

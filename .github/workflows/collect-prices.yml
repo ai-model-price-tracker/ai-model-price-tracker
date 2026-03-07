@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/ docs/latest.json
+          git add docs/data/
           git diff --staged --quiet || git commit -m "Update prices for $(date +%Y-%m-%d)"
           git push
 

@@ -94,25 +94,27 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 ## How It Works
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   GitHub Actions (Daily)                 │
-│                                                         │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
-│  │  Playwright  │  │  3 API       │  │                │  │
-│  │  Scraping    │──│  Sources     │──│  Merge + Validate │
-│  │  (Official)  │  │  (Community) │  │                │  │
-│  └──────┬──────┘  └──────┬───────┘  └───────┬────────┘  │
-│         │                │                  │           │
-│         ▼                ▼                  ▼           │
-│  official-prices.json    ┌──────────┐    latest.json    │
-│                          │  Merge   │    YYYY-MM-DD.json│
-│                          │ Priority:│    docs/latest.json│
-│                          │ Official │                   │
-│                          │ > OpenRouter                 │
-│                          │ > genai-prices               │
-│                          │ > LiteLLM │                  │
-│                          └──────────┘                   │
-└─────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                  GitHub Actions (Daily)                    │
+│                                                           │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
+│  │  OpenRouter   │ │ genai-prices │ │   LiteLLM    │       │
+│  │  API (350+)   │ │ JSON (1000+) │ │ JSON (1800+) │       │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘       │
+│         │                │                │               │
+│  ┌──────┴────────────────┴────────────────┴──────┐        │
+│  │         Combine (no merge, keep all sources)   │        │
+│  │         + Price sanity filter ($1000/1M cap)   │        │
+│  └──────────────────┬────────────────────────────┘        │
+│                     │                                     │
+│  ┌──────────────┐   ▼                                     │
+│  │  Playwright   │  docs/data/latest.json                 │
+│  │  Official     │  docs/data/YYYY-MM-DD.json             │
+│  │  Scrapers     │  docs/data/YYYY-MM-DD_diff.json        │
+│  └──────┬───────┘                                         │
+│         ▼                                                 │
+│  docs/data/official-prices.json                           │
+└───────────────────────────────────────────────────────────┘
 ```
 
 ## Data Sources
@@ -124,7 +126,7 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 | 3 | [pydantic/genai-prices](https://github.com/pydantic/genai-prices) | JSON (GitHub) | 1,000+ | MIT |
 | 4 | [BerriAI/litellm](https://github.com/BerriAI/litellm) | JSON (GitHub) | 1,800+ | MIT |
 
-**Merge priority:** Official scraped prices override aggregator prices. OpenRouter is primary for API data, genai-prices and LiteLLM enrich cache pricing and capability metadata.
+**No merge:** Each source's data is kept as a separate entry. The same model may appear multiple times with different prices from different sources, allowing users to compare. A daily diff file tracks additions, removals, and price changes.
 
 ### Official page scrapers
 
