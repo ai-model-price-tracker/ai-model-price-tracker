@@ -19,3 +19,25 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+DATA NOTICE
+
+The MIT License above applies to the source code of this project only.
+
+The pricing data collected and distributed by this project (JSON files in
+outputs/ and docs/) is aggregated from third-party sources, each subject to
+its own terms:
+
+- OpenRouter API: subject to OpenRouter Terms of Service
+  (https://openrouter.ai/terms)
+- Official provider pricing pages: scraped content is owned by each
+  respective provider (OpenAI, Anthropic, Google, etc.)
+
+The collected data may NOT be used for commercial purposes without
+independently verifying and complying with each original source's terms
+of service. This project makes no guarantee that redistribution or
+commercial use of the aggregated data is permitted.
+
+Use of this data is at your own risk and responsibility.
