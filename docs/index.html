@@ -716,10 +716,14 @@ function renderStats(s) {
 function populateProviderFilter(providers) {
   const sel = document.getElementById('providerFilter');
   sel.innerHTML = `<option value="">${t('allProviders')}</option>`;
-  for (const p of providers.sort((a,b) => a.display_name.localeCompare(b.display_name))) {
+  const map = new Map();
+  for (const p of providers) {
+    map.set(p.display_name, (map.get(p.display_name) || 0) + p.models.length);
+  }
+  for (const [name, count] of [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     const opt = document.createElement('option');
-    opt.value = p.display_name;
-    opt.textContent = `${p.display_name} (${p.models.length})`;
+    opt.value = name;
+    opt.textContent = `${name} (${count})`;
     sel.appendChild(opt);
   }
 }
