@@ -304,34 +304,38 @@ function groupByProvider(models) {
 
 function buildSummary(providers) {
   let totalModels = 0;
-  let cheapest = null;
-  let mostExpensive = null;
-  let sumInput = 0;
-  let sumOutput = 0;
-  let pricedCount = 0;
+  let cheapestInput = null, expensiveInput = null;
+  let cheapestOutput = null, expensiveOutput = null;
+  let sumInput = 0, sumOutput = 0, pricedCount = 0;
 
   for (const p of providers) {
     totalModels += p.models.length;
     for (const m of p.models) {
       const inp = m.input_price_per_1m;
       const out = m.output_price_per_1m;
-      if (inp == null || inp <= 0) continue;
-
-      pricedCount++;
-      sumInput += inp;
-      sumOutput += (out || 0);
-
       const entry = { provider: p.display_name, id: m.id, name: m.name, input_price_per_1m: inp, output_price_per_1m: out };
-      if (!cheapest || inp < cheapest.input_price_per_1m) cheapest = entry;
-      if (!mostExpensive || inp > mostExpensive.input_price_per_1m) mostExpensive = entry;
+
+      if (inp != null && inp > 0) {
+        pricedCount++;
+        sumInput += inp;
+        sumOutput += (out || 0);
+        if (!cheapestInput || inp < cheapestInput.input_price_per_1m) cheapestInput = entry;
+        if (!expensiveInput || inp > expensiveInput.input_price_per_1m) expensiveInput = entry;
+      }
+      if (out != null && out > 0) {
+        if (!cheapestOutput || out < cheapestOutput.output_price_per_1m) cheapestOutput = entry;
+        if (!expensiveOutput || out > expensiveOutput.output_price_per_1m) expensiveOutput = entry;
+      }
     }
   }
 
   return {
     total_providers: providers.length,
     total_models: totalModels,
-    cheapest_model: cheapest,
-    most_expensive_model: mostExpensive,
+    cheapest_model: cheapestInput,
+    most_expensive_model: expensiveInput,
+    cheapest_output_model: cheapestOutput,
+    most_expensive_output_model: expensiveOutput,
     average_input_price_per_1m: pricedCount > 0 ? round(sumInput / pricedCount) : 0,
     average_output_price_per_1m: pricedCount > 0 ? round(sumOutput / pricedCount) : 0,
   };
