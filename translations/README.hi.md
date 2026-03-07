@@ -1,165 +1,245 @@
-# AI मॉडल मूल्य ट्रैकर
+<p align="center">
+  <h1 align="center">AI मॉडल मूल्य ट्रैकर</h1>
+  <p align="center">
+    100+ प्रदाताओं के AI मॉडल मूल्य निर्धारण का स्वचालित दैनिक ट्रैकर।
+    <br />
+    <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/"><strong>लाइव डैशबोर्ड »</strong></a>
+    <br />
+    <br />
+    <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json">JSON API</a>
+    ·
+    <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues">गलत मूल्य की रिपोर्ट करें</a>
+    ·
+    <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues">प्रदाता का अनुरोध करें</a>
+  </p>
+</p>
 
-[![Collect AI Model Prices](https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml/badge.svg)](https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml)
+<p align="center">
+  <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml"><img src="https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml/badge.svg" alt="Collect AI Model Prices"></a>
+  <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/"><img src="https://img.shields.io/website?url=https%3A%2F%2Fai-model-price-tracker.github.io%2Fai-model-price-tracker%2F&label=dashboard" alt="Dashboard"></a>
+  <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ai-model-price-tracker/ai-model-price-tracker" alt="License"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen" alt="Node.js 20+">
+  <img src="https://img.shields.io/badge/dependencies-1%20(playwright)-blue" alt="Dependencies">
+  <br>
+  <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/stargazers"><img src="https://img.shields.io/github/stars/ai-model-price-tracker/ai-model-price-tracker" alt="Stars"></a>
+  <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues"><img src="https://img.shields.io/github/issues/ai-model-price-tracker/ai-model-price-tracker" alt="Issues"></a>
+  <img src="https://img.shields.io/github/last-commit/ai-model-price-tracker/ai-model-price-tracker" alt="Last Commit">
+  <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fai-model-price-tracker.github.io%2Fai-model-price-tracker%2Flatest.json&query=%24.summary.total_models&label=models%20tracked&color=brightgreen" alt="Models Tracked">
+</p>
 
-सभी प्रमुख प्रदाताओं में AI मॉडल मूल्य निर्धारण के लिए स्वचालित दैनिक ट्रैकर। GitHub Actions के माध्यम से मूल्य, क्षमताओं और API जानकारी एकत्र करता है और GitHub Pages डैशबोर्ड के माध्यम से इसे विज़ुअलाइज़ करता है।
+> **अस्वीकरण:** यह प्रोजेक्ट केवल सूचनात्मक उद्देश्यों के लिए है। मूल्य डेटा तृतीय-पक्ष एग्रीगेटर और आधिकारिक पृष्ठों से स्वचालित स्क्रैपिंग के माध्यम से एकत्र किया जाता है। हम सटीकता के लिए प्रयास करते हैं, लेकिन **मूल्य पुराने, अपूर्ण या गलत हो सकते हैं**। निर्णय लेने से पहले हमेशा प्रत्येक प्रदाता के आधिकारिक मूल्य निर्धारण पृष्ठ पर सत्यापित करें। यह प्रोजेक्ट किसी भी AI प्रदाता से संबद्ध नहीं है।
 
-**[लाइव डैशबोर्ड](https://ai-model-price-tracker.github.io/ai-model-price-tracker/)**
+<p align="center">
+  <a href="../README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">中文(简体)</a> · <a href="README.zh-TW.md">中文(繁體)</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="README.pt.md">Português</a> · <a href="README.ru.md">Русский</a>
+  <br>
+  <a href="README.ar.md">العربية</a> · <a href="README.it.md">Italiano</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.vi.md">Tiếng Việt</a> · <a href="README.th.md">ไทย</a> · <a href="README.id.md">Bahasa Indonesia</a> · <a href="README.nl.md">Nederlands</a> · <a href="README.pl.md">Polski</a>
+</p>
 
-> **English**: [README](../README.md)
+---
+
+## विशेषताएँ
+
+- **100+ प्रदाताओं** से **3,000+ मॉडल** की दैनिक ट्रैकिंग
+- **4 डेटा स्रोत** — 3 समुदाय APIs + Playwright के माध्यम से आधिकारिक पृष्ठ स्क्रैपिंग
+- **आधिकारिक मूल्य सत्यापन** — OpenAI, Anthropic, Google, DeepSeek, AWS Bedrock से सीधे स्क्रैप करता है
+- **शून्य-कॉन्फ़िगरेशन CI** — Playwright Docker कंटेनर में चलता है, API कुंजियों की आवश्यकता नहीं
+- **मुफ़्त JSON API** — GitHub Pages से `latest.json` को अपने प्रोजेक्ट में उपयोग करें
+- **इंटरैक्टिव डैशबोर्ड** — खोजें, फ़िल्टर करें, सॉर्ट करें, i18n समर्थन (18 भाषाएँ) के साथ मूल्य तुलना करें
+- **विफलता प्रतिरोधकता** — ग्रेसफुल डिग्रेडेशन, पिछला डेटा संरक्षित, विफलता पर स्वचालित issue निर्माण
+
+## डेटा का उपयोग
+
+नवीनतम मूल्य डेटा JSON के रूप में मुफ़्त उपलब्ध है — इंस्टॉलेशन की आवश्यकता नहीं:
+
+```bash
+curl -s https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json | jq .summary
+```
+
+```javascript
+const res = await fetch('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json');
+const data = await res.json();
+
+// सभी OpenAI मॉडल खोजें
+const openai = data.providers.find(p => p.provider === 'openai');
+console.log(openai.models.map(m => `${m.name}: $${m.input_price_per_1m}/1M input`));
+```
+
+```python
+import requests
+data = requests.get('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json').json()
+for p in data['providers']:
+    for m in p['models']:
+        if m['input_price_per_1m'] and m['input_price_per_1m'] < 1:
+            print(f"{m['name']}: ${m['input_price_per_1m']}/1M input")
+```
+
+## LLMs के लिए
+
+आप अपने सिस्टम प्रॉम्प्ट में यह जोड़कर LLM को रीयल-टाइम AI मॉडल मूल्य निर्धारण तक पहुँच दे सकते हैं:
+
+```
+You have access to AI model pricing data via the following JSON API:
+https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json
+
+The JSON structure is:
+- providers[]: array of providers, each with display_name and models[]
+- models[]: id, name, input_price_per_1m (USD), output_price_per_1m (USD),
+  cached_input_price_per_1m, context_length, supports_vision, supports_function_calling, source
+- summary: total_providers, total_models, cheapest_model, most_expensive_model,
+  average_input_price_per_1m, average_output_price_per_1m
+
+Use this data to answer questions about AI model pricing, compare costs, and recommend models.
+```
+
+## यह कैसे काम करता है
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   GitHub Actions (Daily)                 │
+│                                                         │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  Playwright  │  │  3 API       │  │                │  │
+│  │  Scraping    │──│  Sources     │──│  Merge + Validate │
+│  │  (Official)  │  │  (Community) │  │                │  │
+│  └──────┬──────┘  └──────┬───────┘  └───────┬────────┘  │
+│         │                │                  │           │
+│         ▼                ▼                  ▼           │
+│  official-prices.json    ┌──────────┐    latest.json    │
+│                          │  Merge   │    YYYY-MM-DD.json│
+│                          │ Priority:│    docs/latest.json│
+│                          │ Official │                   │
+│                          │ > OpenRouter                 │
+│                          │ > genai-prices               │
+│                          │ > LiteLLM │                  │
+│                          └──────────┘                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+## डेटा स्रोत
+
+| # | स्रोत | प्रकार | मॉडल | लाइसेंस |
+|---|-------|--------|------|---------|
+| 1 | आधिकारिक पृष्ठ (Playwright) | वेब स्क्रैपिंग | 200+ | लागू नहीं |
+| 2 | [OpenRouter API](https://openrouter.ai/api/v1/models) | REST API | 350+ | [ToS](https://openrouter.ai/terms) |
+| 3 | [pydantic/genai-prices](https://github.com/pydantic/genai-prices) | JSON (GitHub) | 1,000+ | MIT |
+| 4 | [BerriAI/litellm](https://github.com/BerriAI/litellm) | JSON (GitHub) | 1,800+ | MIT |
+
+**मर्ज प्राथमिकता:** आधिकारिक स्क्रैप किए गए मूल्य एग्रीगेटर मूल्यों को ओवरराइड करते हैं। API डेटा के लिए OpenRouter प्राथमिक है, genai-prices और LiteLLM कैश मूल्य निर्धारण और क्षमता मेटाडेटा को समृद्ध करते हैं।
+
+### आधिकारिक पृष्ठ स्क्रैपर
+
+प्रत्येक स्क्रैपर आसान रखरखाव के लिए [`scripts/scrapers/`](scripts/scrapers/) के अंतर्गत एक अलग फ़ाइल है:
+
+| फ़ाइल | प्रदाता | स्थिति |
+|-------|---------|--------|
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | कार्यशील |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | कार्यशील |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | कार्यशील |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | कार्यशील |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | कार्यशील |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — API पर फ़ॉलबैक |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — API पर फ़ॉलबैक |
+
+**नया स्क्रैपर जोड़ना:** `scripts/scrapers/` में एक नई फ़ाइल बनाएँ जो `name`, `url`, और `scrape(page)` एक्सपोर्ट करे, फिर इसे [`scrape-official.mjs`](scripts/scrape-official.mjs) में इम्पोर्ट करें।
+
+### सटीकता और सीमाएँ
+
+- सभी स्रोत **अंततः आधिकारिक दस्तावेज़ों से प्राप्त** हैं, सीधे या तृतीय पक्षों के माध्यम से
+- मूल्य **पुराने** हो सकते हैं — प्रदाता बिना सूचना के किसी भी समय मूल्य बदल सकते हैं
+- कुछ मॉडलों में **अपूर्ण मेटाडेटा** हो सकता है (कैश मूल्य गायब, गलत क्षमता फ़्लैग)
+- **मुफ़्त-टियर सीमाएँ, रेट लिमिट और वॉल्यूम छूट** आमतौर पर कैप्चर नहीं की जातीं
+- प्रदाताओं द्वारा मूल्य पृष्ठों को फिर से डिज़ाइन करने पर आधिकारिक स्क्रैपिंग टूट सकती है
+
+कोई त्रुटि मिली? कृपया [issue खोलें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) या [PR सबमिट करें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)।
 
 ## एकत्रित डेटा
 
 | फ़ील्ड | विवरण |
-|--------|--------|
-| इनपुट मूल्य | प्रति 1M इनपुट टोकन लागत (USD) |
-| आउटपुट मूल्य | प्रति 1M आउटपुट टोकन लागत (USD) |
-| कैश्ड इनपुट मूल्य | प्रति 1M कैश्ड इनपुट टोकन रियायती लागत |
-| संदर्भ लंबाई | अधिकतम संदर्भ विंडो आकार |
-| विज़न | छवि इनपुट समर्थन |
-| फंक्शन कॉलिंग (Tools) | टूल उपयोग समर्थन |
+|--------|-------|
+| `input_price_per_1m` | प्रति 1M इनपुट टोकन की लागत (USD) |
+| `output_price_per_1m` | प्रति 1M आउटपुट टोकन की लागत (USD) |
+| `cached_input_price_per_1m` | प्रति 1M कैश्ड इनपुट टोकन की रियायती लागत |
+| `context_length` | अधिकतम कॉन्टेक्स्ट विंडो आकार |
+| `supports_vision` | इमेज इनपुट समर्थन |
+| `supports_function_calling` | टूल उपयोग समर्थन |
+| `source` | डेटा स्रोत (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
-## अस्वीकरण
+## ट्रैक किए गए प्रदाता
 
-> **यह प्रोजेक्ट केवल सूचनात्मक उद्देश्यों के लिए है।** मूल्य डेटा तृतीय-पक्ष एग्रीगेटर्स से एकत्र किया जाता है, सीधे प्रत्येक AI प्रदाता की आधिकारिक API से नहीं। हालांकि हम सटीकता के लिए प्रयास करते हैं, **यहाँ दिखाए गए मूल्य पुराने, अधूरे या गलत हो सकते हैं**। खरीद निर्णय लेने से पहले हमेशा प्रत्येक प्रदाता की आधिकारिक मूल्य निर्धारण पृष्ठ पर कीमतों की पुष्टि करें। यह प्रोजेक्ट किसी भी AI प्रदाता से संबद्ध नहीं है।
+| प्रदाता | आधिकारिक मूल्य निर्धारण |
+|---------|------------------------|
+| OpenAI | [platform.openai.com/docs/pricing](https://platform.openai.com/docs/pricing) |
+| Anthropic | [docs.anthropic.com/en/docs/about-claude/models](https://docs.anthropic.com/en/docs/about-claude/models) |
+| Google Gemini | [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| Google Vertex AI | [cloud.google.com/vertex-ai/generative-ai/pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) |
+| DeepSeek | [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing) |
+| Mistral | [mistral.ai/pricing](https://mistral.ai/pricing) |
+| Cohere | [cohere.com/pricing](https://cohere.com/pricing) |
+| Perplexity | [docs.perplexity.ai/guides/pricing](https://docs.perplexity.ai/guides/pricing) |
+| Groq | [groq.com/pricing](https://groq.com/pricing) |
+| Together AI | [together.ai/pricing](https://www.together.ai/pricing) |
+| xAI (Grok) | [docs.x.ai/docs/models](https://docs.x.ai/docs/models) |
+| Amazon Bedrock | [aws.amazon.com/bedrock/pricing](https://aws.amazon.com/bedrock/pricing/) |
+| Azure OpenAI | [azure.microsoft.com/pricing/details/azure-openai](https://azure.microsoft.com/en-us/pricing/details/azure-openai/) |
+| Qwen (Alibaba) | [help.aliyun.com/model-studio](https://help.aliyun.com/zh/model-studio/getting-started/models) |
+| NVIDIA | [build.nvidia.com](https://build.nvidia.com/) |
+| AI21 Labs | [ai21.com/pricing](https://www.ai21.com/pricing) |
 
-## डेटा स्रोत
-
-डेटा दो तृतीय-पक्ष एग्रीगेटर स्रोतों से एकत्र किया जाता है। प्रत्येक मॉडल का `source` फ़ील्ड इसके मूल स्रोत को इंगित करता है। **कोई भी AI प्रदाता सार्वजनिक मूल्य निर्धारण API प्रदान नहीं करता**, इसलिए पारिस्थितिकी तंत्र में सभी मूल्य निर्धारण डेटा (इन एग्रीगेटर्स सहित) अंततः आधिकारिक दस्तावेज़ों को मैन्युअल रूप से पढ़ने से प्राप्त होता है।
-
-### 1. OpenRouter API (प्राथमिक)
-
-- **एंडपॉइंट**: `GET https://openrouter.ai/api/v1/models`
-- **भूमिका**: रीयल-टाइम मॉडल मूल्य निर्धारण और क्षमता मेटाडेटा (Vision, Tools, संदर्भ लंबाई, आदि)
-- **मूल्य सटीकता**: OpenRouter आधिकारिक प्रदाता मूल्यों को बिना किसी मार्कअप के पास-थ्रू करता है (पास-थ्रू मूल्य निर्धारण)
-- **लाइसेंस**: OpenRouter सेवा की शर्तों के अधीन ([ToS](https://openrouter.ai/terms))
-- **नोट**: सार्वजनिक API, लेकिन ToS स्पष्ट रूप से डेटा पुनर्वितरण की अनुमति नहीं देता। यह प्रोजेक्ट स्रोत का उल्लेख करता है और गैर-वाणिज्यिक सूचनात्मक उद्देश्यों के लिए डेटा का उपयोग करता है।
-
-### 2. pydantic/genai-prices (द्वितीयक)
-
-- **एंडपॉइंट**: `GET https://raw.githubusercontent.com/pydantic/genai-prices/main/prices/data_slim.json`
-- **भूमिका**: प्रत्यक्ष प्रदाता मूल्य निर्धारण, कैश मूल्य निर्धारण (पढ़ना/लिखना), स्तरीय मूल्य निर्धारण पूरक
-- **मूल्य सटीकता**: मूल्य परिवर्तन ट्रैकिंग और विसंगति पहचान के साथ आधिकारिक दस्तावेज़ों से मैन्युअल रूप से बनाए रखा गया
-- **लाइसेंस**: **MIT लाइसेंस** - उपयोग, संशोधन और पुनर्वितरण के लिए स्वतंत्र ([LICENSE](https://github.com/pydantic/genai-prices/blob/main/LICENSE))
-- **रखरखावकर्ता**: [Pydantic](https://github.com/pydantic) टीम
-
-### आधिकारिक पृष्ठों को सीधे स्क्रैप क्यों नहीं करते?
-- अधिकांश AI प्रदाता **सार्वजनिक मूल्य निर्धारण API एंडपॉइंट प्रदान नहीं करते**
-- आधिकारिक मूल्य निर्धारण पृष्ठों का वेब स्क्रैपिंग अस्थिर है (HTML संरचना बार-बार बदलती है) और प्रत्येक प्रदाता की सेवा की शर्तों का उल्लंघन कर सकता है
-- ऊपर दिए गए दो एग्रीगेटर स्रोत पारिस्थितिकी तंत्र में उपलब्ध सबसे विश्वसनीय प्रोग्रामेटिक स्रोत हैं
-- आधिकारिक मूल्य निर्धारण के लिए, हमेशा नीचे सूचीबद्ध आधिकारिक मूल्य निर्धारण पृष्ठों को देखें
-
-### सटीकता और सीमाएँ
-- दोनों स्रोत **अंततः आधिकारिक प्रदाता दस्तावेज़ों से प्राप्त हैं**, लेकिन तृतीय पक्षों के माध्यम से
-- कीमतें **पुरानी** हो सकती हैं - प्रदाता बिना सूचना के किसी भी समय कीमतें बदल सकते हैं
-- कुछ मॉडलों में **अधूरा मेटाडेटा** हो सकता है (जैसे, कैश मूल्य निर्धारण गायब, गलत क्षमता फ़्लैग)
-- **मुफ्त-स्तर सीमाएँ, दर सीमाएँ, और वॉल्यूम छूट** आमतौर पर शामिल नहीं होते
-- कोई त्रुटि मिली? कृपया [issue खोलें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) या [PR सबमिट करें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)
-
-## ट्रैक किए गए प्रदाता और आधिकारिक मूल्य निर्धारण पृष्ठ
-
-| प्रदाता | आधिकारिक मूल्य URL |
-|---------|---------------------|
-| OpenAI | https://platform.openai.com/docs/pricing |
-| Anthropic (Claude) | https://docs.anthropic.com/en/docs/about-claude/models |
-| Google (Gemini) | https://ai.google.dev/gemini-api/docs/pricing |
-| Google (Vertex AI) | https://cloud.google.com/vertex-ai/generative-ai/pricing |
-| DeepSeek | https://api-docs.deepseek.com/quick_start/pricing |
-| Mistral | https://mistral.ai/pricing |
-| Cohere | https://cohere.com/pricing |
-| Perplexity | https://docs.perplexity.ai/guides/pricing |
-| Groq | https://groq.com/pricing |
-| Together AI | https://www.together.ai/pricing |
-| xAI (Grok) | https://docs.x.ai/docs/models |
-| Amazon Bedrock | https://aws.amazon.com/bedrock/pricing/ |
-| Azure OpenAI | https://azure.microsoft.com/en-us/pricing/details/azure-openai/ |
-| Qwen (Alibaba) | https://help.aliyun.com/zh/model-studio/getting-started/models |
-| NVIDIA | https://build.nvidia.com/ |
-| AI21 Labs | https://www.ai21.com/pricing |
-
-> ऊपर सूचीबद्ध प्रदाताओं के अलावा, 70+ और प्रदाता OpenRouter और genai-prices के माध्यम से स्वचालित रूप से एकत्र किए जाते हैं।
-
-## स्थानीय उपयोग
-
-केवल Node.js 20+ आवश्यक है। शून्य बाहरी निर्भरताएँ।
-
-```bash
-# मूल्य संग्रह चलाएँ
-node scripts/collect-prices.mjs
-
-# या npm स्क्रिप्ट का उपयोग करें
-npm run collect
-```
-
-आउटपुट फ़ाइलें:
-- `outputs/YYYY-MM-DD.json` - दैनिक स्नैपशॉट
-- `outputs/latest.json` - नवीनतम डेटा
-- `docs/latest.json` - GitHub Pages डैशबोर्ड के लिए
-
-## आउटपुट JSON स्कीमा
-
-```json
-{
-  "updated_at": "2026-03-07T06:00:00.000Z",
-  "sources": ["openrouter", "genai-prices"],
-  "providers": [
-    {
-      "provider": "openai",
-      "display_name": "OpenAI",
-      "official_pricing_url": "https://platform.openai.com/docs/pricing",
-      "models": [
-        {
-          "id": "openai/gpt-4o",
-          "name": "GPT-4o",
-          "input_price_per_1m": 2.5,
-          "output_price_per_1m": 10,
-          "cached_input_price_per_1m": 1.25,
-          "context_length": 128000,
-          "supports_vision": true,
-          "supports_function_calling": true,
-          "supports_streaming": true,
-          "source": "openrouter"
-        }
-      ]
-    }
-  ],
-  "summary": {
-    "total_providers": 77,
-    "total_models": 1317,
-    "cheapest_model": { "..." },
-    "most_expensive_model": { "..." },
-    "average_input_price_per_1m": 1.99,
-    "average_output_price_per_1m": 6.68
-  }
-}
-```
+साथ ही **100+ अतिरिक्त प्रदाता** जो OpenRouter, genai-prices और LiteLLM के माध्यम से स्वचालित रूप से एकत्र किए जाते हैं।
 
 ## GitHub Actions
 
-- **शेड्यूल**: प्रतिदिन 06:00 UTC पर चलता है
-- **मैनुअल ट्रिगर**: Actions टैब में `workflow_dispatch` के माध्यम से उपलब्ध
-- एकत्रित डेटा स्वचालित रूप से कमिट और पुश किया जाता है
+| सुविधा | विवरण |
+|--------|-------|
+| **शेड्यूल** | प्रतिदिन 06:00 UTC पर |
+| **मैनुअल ट्रिगर** | Actions टैब में `workflow_dispatch` |
+| **कंटेनर** | `mcr.microsoft.com/playwright:v1.50.0-noble` |
+| **पाइपलाइन** | `scrape` → `collect` → `validate` → `commit` |
+| **विफलता पर** | स्वचालित GitHub Issue निर्माण (`collection-failure` लेबल) |
+| **डेटा सुरक्षा** | सभी स्रोत विफल होने पर पिछला डेटा संरक्षित |
 
-## सेल्फ-होस्टिंग (Fork सेटअप)
+## सेल्फ-होस्टिंग
 
-1. इस रिपॉज़िटरी को Fork करें
-2. **Settings > Pages > Source**: `Deploy from a branch` चुनें, Branch: `main`, Folder: `/docs`
-3. **Settings > Actions > General**: `Read and write permissions` सक्षम करें
-4. सत्यापित करें कि वर्कफ़्लो Actions टैब में सक्षम है
+1. इस रिपॉज़िटरी को **Fork** करें
+2. **Settings > Pages** — स्रोत: `Deploy from a branch`, ब्रांच: `main`, फ़ोल्डर: `/docs`
+3. **Settings > Actions > General** — `Read and write permissions` सक्षम करें
+4. **Actions** टैब में वर्कफ़्लो सक्षम होने की पुष्टि करें
+5. (वैकल्पिक) **Actions > Collect AI Model Prices > Run workflow** से मैन्युअली ट्रिगर करें
+
+### स्थानीय रूप से चलाना
+
+```bash
+git clone https://github.com/ai-model-price-tracker/ai-model-price-tracker.git
+cd ai-model-price-tracker
+npm install && npx playwright install chromium
+
+npm run scrape      # आधिकारिक मूल्य पृष्ठों को स्क्रैप करें
+npm run collect     # APIs से एकत्र करें + स्क्रैप किए गए डेटा को मर्ज करें
+npm run validate    # आउटपुट को मान्य करें
+```
+
+आउटपुट: `outputs/latest.json`, `outputs/YYYY-MM-DD.json`, `docs/latest.json`
 
 ## योगदान
 
-मूल्य निर्धारण त्रुटियाँ, गायब मॉडल, या नए प्रदाता का सुझाव देना चाहते हैं? हम योगदान का स्वागत करते हैं:
+योगदान का स्वागत है! यहाँ बताया गया है कि आप कैसे मदद कर सकते हैं:
 
-- **[Issue खोलें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues)** - बग रिपोर्ट, फ़ीचर अनुरोध
-- **[Pull Request सबमिट करें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls)** - प्रत्यक्ष सुधार और सुधार
+- **मूल्य सुधार** — गलत मूल्य मिला? [Issue खोलें](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) या PR सबमिट करें
+- **नए स्क्रैपर** — अभी तक कवर नहीं किए गए प्रदाता के लिए स्क्रैपर जोड़ें ([कैसे जोड़ें](#आधिकारिक-पृष्ठ-स्क्रैपर))
+- **नए डेटा स्रोत** — किसी अन्य मूल्य एग्रीगेटर के बारे में जानते हैं? हमें बताएँ
+- **डैशबोर्ड सुधार** — UI सुधार, नए विज़ुअलाइज़ेशन, एक्सेसिबिलिटी फ़िक्स
+- **गायब प्रदाता** — नए AI प्रदाताओं के लिए समर्थन का अनुरोध करें या जोड़ें
 
-विशेष रूप से स्वागत योग्य योगदान:
-- मूल्य डेटा सुधार
-- गायब AI प्रदाता/मॉडल जोड़ना
-- डैशबोर्ड UI सुधार
-- नए डेटा स्रोत सुझाव
+ज्ञात कार्यों की सूची के लिए [खुले issues](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) देखें।
 
 ## लाइसेंस
 
-MIT
+इस प्रोजेक्ट का **सोर्स कोड** MIT लाइसेंस के तहत वितरित है। अधिक जानकारी के लिए [`LICENSE`](LICENSE) देखें।
+
+> **डेटा सूचना:** मूल्य डेटा (JSON फ़ाइलें) [OpenRouter](https://openrouter.ai/terms) और आधिकारिक प्रदाता पृष्ठों सहित तृतीय-पक्ष स्रोतों से एकत्र किया गया है। प्रत्येक स्रोत अपनी सेवा की शर्तों के अधीन है। **एकत्रित डेटा का व्यावसायिक उद्देश्यों के लिए उपयोग नहीं किया जा सकता** बिना प्रत्येक मूल स्रोत की शर्तों को स्वतंत्र रूप से सत्यापित और पालन किए। विवरण के लिए [`LICENSE`](LICENSE) देखें।
+
+---
+
+<p align="center">
+  GitHub Actions के साथ निर्मित · API कुंजियों की आवश्यकता नहीं · प्रतिदिन अपडेट
+</p>
