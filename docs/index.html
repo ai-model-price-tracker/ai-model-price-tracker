@@ -72,6 +72,16 @@
   .disclaimer { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; font-size: 0.85em; color: var(--fg2); max-width: 700px; margin: 0 auto; }
   .loading { text-align: center; padding: 60px; font-size: 1.2em; color: var(--fg2); }
   .free-tag { background: var(--green); color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 0.7em; font-weight: 700; }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .pagination button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); cursor: pointer; font-size: 0.85em; }
+  .pagination button:hover { border-color: var(--accent); color: var(--accent); }
+  .pagination button:disabled { opacity: 0.4; cursor: default; border-color: var(--border); color: var(--fg2); }
+  .pagination button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pagination .page-info { font-size: 0.85em; color: var(--fg2); }
+  .page-size-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); color: var(--fg); font-size: 0.85em; }
+  td.model-desc { cursor: help; }
+  td.model-desc .desc-preview { display: none; position: absolute; left: 0; top: 100%; background: var(--fg); color: var(--bg); padding: 8px 12px; border-radius: 6px; font-size: 0.85em; max-width: 400px; white-space: normal; word-break: break-word; z-index: 20; pointer-events: none; line-height: 1.4; }
+  td.model-desc:hover .desc-preview { display: block; }
   @media (max-width: 768px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .bar-label { width: 140px; font-size: 0.7em; }
@@ -112,6 +122,8 @@
     </table>
   </div>
 
+  <div class="pagination" id="pagination"></div>
+
   <div class="chart-section">
     <h2 id="chartTitle"></h2>
     <div class="legend">
@@ -144,16 +156,17 @@ const I18N = {
     vision: 'Vision', tools: 'Tools', hideFree: 'Hide Free',
     colProvider: 'Provider', colModel: 'Model',
     colInput: 'Input $/1M', colOutput: 'Output $/1M', colCached: 'Cached $/1M',
-    colContext: 'Context', colVision: 'Vision', colTools: 'Tools', colSource: 'Source',
+    colContext: 'Context', colMaxOutput: 'Max Output', colVision: 'Vision', colTools: 'Tools', colSource: 'Source',
     chartTitle: 'Top 20 Models by Input Price ($/1M tokens)',
-    input: 'Input', output: 'Output',
+    input: 'Input', output: 'Output', perPage: 'per page', page: 'Page',
     footerSources: 'Data sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Found an issue? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Report it</a> or <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">submit a PR</a>',
     yes: 'Yes', no: 'No', free: 'FREE',
     tipInput: 'Cost per 1 million input tokens (USD)',
     tipOutput: 'Cost per 1 million output tokens (USD)',
     tipCached: 'Discounted price when using cached/repeated prompts',
-    tipContext: 'Maximum number of tokens the model can process at once',
+    tipContext: 'Maximum number of input tokens the model can process at once',
+    tipMaxOutput: 'Maximum number of output tokens the model can generate',
     tipVision: 'Whether the model can process image inputs',
     tipTools: 'Whether the model supports function calling / tool use',
     tipSource: 'Where the pricing data was collected from',
@@ -173,16 +186,17 @@ const I18N = {
     vision: '비전', tools: '도구', hideFree: '무료 숨기기',
     colProvider: '제공사', colModel: '모델',
     colInput: '입력 $/1M', colOutput: '출력 $/1M', colCached: '캐시 $/1M',
-    colContext: '컨텍스트', colVision: '비전', colTools: '도구', colSource: '출처',
+    colContext: '컨텍스트', colMaxOutput: '최대 출력', colVision: '비전', colTools: '도구', colSource: '출처',
     chartTitle: '입력 가격 상위 20개 모델 ($/1M 토큰)',
-    input: '입력', output: '출력',
+    input: '입력', output: '출력', perPage: '개씩', page: '페이지',
     footerSources: '데이터 소스: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '문제를 발견하셨나요? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">리포트</a> 또는 <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR 제출</a>',
     yes: '예', no: '아니오', free: '무료',
     tipInput: '100만 입력 토큰당 비용 (USD)',
     tipOutput: '100만 출력 토큰당 비용 (USD)',
     tipCached: '캐시된 프롬프트 사용 시 할인 가격',
-    tipContext: '모델이 한 번에 처리할 수 있는 최대 토큰 수',
+    tipContext: '모델이 한 번에 처리할 수 있는 최대 입력 토큰 수',
+    tipMaxOutput: '모델이 생성할 수 있는 최대 출력 토큰 수',
     tipVision: '이미지 입력 처리 가능 여부',
     tipTools: '함수 호출 / 도구 사용 지원 여부',
     tipSource: '가격 데이터 수집 출처',
@@ -202,16 +216,17 @@ const I18N = {
     vision: 'ビジョン', tools: 'ツール', hideFree: '無料を非表示',
     colProvider: 'プロバイダー', colModel: 'モデル',
     colInput: '入力 $/1M', colOutput: '出力 $/1M', colCached: 'キャッシュ $/1M',
-    colContext: 'コンテキスト', colVision: 'ビジョン', colTools: 'ツール', colSource: 'ソース',
+    colContext: 'コンテキスト', colMaxOutput: '最大出力', colVision: 'ビジョン', colTools: 'ツール', colSource: 'ソース',
     chartTitle: '入力価格トップ20モデル ($/1Mトークン)',
-    input: '入力', output: '出力',
+    input: '入力', output: '出力', perPage: '件表示', page: 'ページ',
     footerSources: 'データソース: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '問題を発見しましたか？ <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">報告</a>または<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR</a>',
     yes: 'はい', no: 'いいえ', free: '無料',
     tipInput: '100万入力トークンあたりのコスト（USD）',
     tipOutput: '100万出力トークンあたりのコスト（USD）',
     tipCached: 'キャッシュ済みプロンプト使用時の割引価格',
-    tipContext: 'モデルが一度に処理できる最大トークン数',
+    tipContext: 'モデルが一度に処理できる最大入力トークン数',
+    tipMaxOutput: 'モデルが生成できる最大出力トークン数',
     tipVision: '画像入力の処理が可能かどうか',
     tipTools: '関数呼び出し/ツール使用をサポートするかどうか',
     tipSource: '価格データの収集元',
@@ -231,16 +246,17 @@ const I18N = {
     vision: '视觉', tools: '工具', hideFree: '隐藏免费',
     colProvider: '提供商', colModel: '模型',
     colInput: '输入 $/1M', colOutput: '输出 $/1M', colCached: '缓存 $/1M',
-    colContext: '上下文', colVision: '视觉', colTools: '工具', colSource: '来源',
+    colContext: '上下文', colMaxOutput: '最大输出', colVision: '视觉', colTools: '工具', colSource: '来源',
     chartTitle: '输入价格前20名模型 ($/1M tokens)',
-    input: '输入', output: '输出',
+    input: '输入', output: '输出', perPage: '每页', page: '页',
     footerSources: '数据来源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '发现问题？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">报告</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
     yes: '是', no: '否', free: '免费',
     tipInput: '每100万输入token的费用（美元）',
     tipOutput: '每100万输出token的费用（美元）',
     tipCached: '使用缓存提示时的折扣价格',
-    tipContext: '模型一次可处理的最大token数',
+    tipContext: '模型一次可处理的最大输入token数',
+    tipMaxOutput: '模型可生成的最大输出token数',
     tipVision: '是否支持处理图像输入',
     tipTools: '是否支持函数调用/工具使用',
     tipSource: '价格数据的采集来源',
@@ -260,16 +276,17 @@ const I18N = {
     vision: '視覺', tools: '工具', hideFree: '隱藏免費',
     colProvider: '供應商', colModel: '模型',
     colInput: '輸入 $/1M', colOutput: '輸出 $/1M', colCached: '快取 $/1M',
-    colContext: '上下文', colVision: '視覺', colTools: '工具', colSource: '來源',
+    colContext: '上下文', colMaxOutput: '最大輸出', colVision: '視覺', colTools: '工具', colSource: '來源',
     chartTitle: '輸入價格前20名模型 ($/1M tokens)',
-    input: '輸入', output: '輸出',
+    input: '輸入', output: '輸出', perPage: '每頁', page: '頁',
     footerSources: '資料來源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '發現問題？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">回報</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
     yes: '是', no: '否', free: '免費',
     tipInput: '每100萬輸入token的費用（美元）',
     tipOutput: '每100萬輸出token的費用（美元）',
     tipCached: '使用快取提示時的折扣價格',
-    tipContext: '模型一次可處理的最大token數',
+    tipContext: '模型一次可處理的最大輸入token數',
+    tipMaxOutput: '模型可生成的最大輸出token數',
     tipVision: '是否支援處理圖像輸入',
     tipTools: '是否支援函數調用/工具使用',
     tipSource: '價格資料的採集來源',
@@ -282,15 +299,16 @@ const I18N = {
     avgInput: 'Prom. Entrada $/1M', avgOutput: 'Prom. Salida $/1M', searchPlaceholder: 'Buscar modelos o proveedores...', allProviders: 'Todos los proveedores',
     vision: 'Vision', tools: 'Herramientas', hideFree: 'Ocultar gratis',
     colProvider: 'Proveedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Salida $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexto', colVision: 'Vision', colTools: 'Herramientas', colSource: 'Fuente',
-    chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida',
+    colContext: 'Contexto', colMaxOutput: 'Max Salida', colVision: 'Vision', colTools: 'Herramientas', colSource: 'Fuente',
+    chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fuentes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontro un error? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> o <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
     yes: 'Si', no: 'No', free: 'GRATIS',
     tipInput: 'Costo por 1 millon de tokens de entrada (USD)',
     tipOutput: 'Costo por 1 millon de tokens de salida (USD)',
     tipCached: 'Precio con descuento al usar prompts en cache',
-    tipContext: 'Numero maximo de tokens que el modelo puede procesar a la vez',
+    tipContext: 'Numero maximo de tokens de entrada que el modelo puede procesar',
+    tipMaxOutput: 'Numero maximo de tokens de salida que el modelo puede generar',
     tipVision: 'Si el modelo puede procesar imagenes como entrada',
     tipTools: 'Si el modelo soporta llamadas a funciones / uso de herramientas',
     tipSource: 'De donde se recopilaron los datos de precios',
@@ -303,15 +321,16 @@ const I18N = {
     avgInput: 'Moy. Entree $/1M', avgOutput: 'Moy. Sortie $/1M', searchPlaceholder: 'Rechercher modeles ou fournisseurs...', allProviders: 'Tous les fournisseurs',
     vision: 'Vision', tools: 'Outils', hideFree: 'Masquer gratuits',
     colProvider: 'Fournisseur', colModel: 'Modele', colInput: 'Entree $/1M', colOutput: 'Sortie $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexte', colVision: 'Vision', colTools: 'Outils', colSource: 'Source',
-    chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie',
+    colContext: 'Contexte', colMaxOutput: 'Max Sortie', colVision: 'Vision', colTools: 'Outils', colSource: 'Source',
+    chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie', perPage: 'par page', page: 'Page',
     footerSources: 'Sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Un probleme ? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Signaler</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">soumettre un PR</a>',
     yes: 'Oui', no: 'Non', free: 'GRATUIT',
     tipInput: 'Cout pour 1 million de tokens en entree (USD)',
     tipOutput: 'Cout pour 1 million de tokens en sortie (USD)',
     tipCached: 'Prix reduit lors de l\'utilisation de prompts en cache',
-    tipContext: 'Nombre maximum de tokens que le modele peut traiter a la fois',
+    tipContext: 'Nombre maximum de tokens en entree que le modele peut traiter',
+    tipMaxOutput: 'Nombre maximum de tokens en sortie que le modele peut generer',
     tipVision: 'Si le modele peut traiter des images en entree',
     tipTools: 'Si le modele supporte l\'appel de fonctions / l\'utilisation d\'outils',
     tipSource: 'D\'ou proviennent les donnees de prix',
@@ -324,15 +343,16 @@ const I18N = {
     avgInput: 'Durchschn. Eingabe $/1M', avgOutput: 'Durchschn. Ausgabe $/1M', searchPlaceholder: 'Modelle oder Anbieter suchen...', allProviders: 'Alle Anbieter',
     vision: 'Vision', tools: 'Tools', hideFree: 'Kostenlose ausblenden',
     colProvider: 'Anbieter', colModel: 'Modell', colInput: 'Eingabe $/1M', colOutput: 'Ausgabe $/1M', colCached: 'Cache $/1M',
-    colContext: 'Kontext', colVision: 'Vision', colTools: 'Tools', colSource: 'Quelle',
-    chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe',
+    colContext: 'Kontext', colMaxOutput: 'Max Ausgabe', colVision: 'Vision', colTools: 'Tools', colSource: 'Quelle',
+    chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe', perPage: 'pro Seite', page: 'Seite',
     footerSources: 'Datenquellen: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Fehler gefunden? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Melden</a> oder <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR einreichen</a>',
     yes: 'Ja', no: 'Nein', free: 'KOSTENLOS',
     tipInput: 'Kosten pro 1 Million Eingabe-Tokens (USD)',
     tipOutput: 'Kosten pro 1 Million Ausgabe-Tokens (USD)',
     tipCached: 'Ermassigter Preis bei Verwendung von gecachten Prompts',
-    tipContext: 'Maximale Anzahl an Tokens, die das Modell auf einmal verarbeiten kann',
+    tipContext: 'Maximale Anzahl an Eingabe-Tokens, die das Modell verarbeiten kann',
+    tipMaxOutput: 'Maximale Anzahl an Ausgabe-Tokens, die das Modell generieren kann',
     tipVision: 'Ob das Modell Bildeingaben verarbeiten kann',
     tipTools: 'Ob das Modell Funktionsaufrufe / Tool-Nutzung unterstutzt',
     tipSource: 'Woher die Preisdaten stammen',
@@ -345,15 +365,16 @@ const I18N = {
     avgInput: 'Media Entrada $/1M', avgOutput: 'Media Saida $/1M', searchPlaceholder: 'Pesquisar modelos ou provedores...', allProviders: 'Todos os provedores',
     vision: 'Visao', tools: 'Ferramentas', hideFree: 'Ocultar gratuitos',
     colProvider: 'Provedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Saida $/1M', colCached: 'Cache $/1M',
-    colContext: 'Contexto', colVision: 'Visao', colTools: 'Ferramentas', colSource: 'Fonte',
-    chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida',
+    colContext: 'Contexto', colMaxOutput: 'Max Saida', colVision: 'Visao', colTools: 'Ferramentas', colSource: 'Fonte',
+    chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fontes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontrou um problema? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
     yes: 'Sim', no: 'Nao', free: 'GRATIS',
     tipInput: 'Custo por 1 milhao de tokens de entrada (USD)',
     tipOutput: 'Custo por 1 milhao de tokens de saida (USD)',
     tipCached: 'Preco com desconto ao usar prompts em cache',
-    tipContext: 'Numero maximo de tokens que o modelo pode processar de uma vez',
+    tipContext: 'Numero maximo de tokens de entrada que o modelo pode processar',
+    tipMaxOutput: 'Numero maximo de tokens de saida que o modelo pode gerar',
     tipVision: 'Se o modelo pode processar imagens como entrada',
     tipTools: 'Se o modelo suporta chamadas de funcao / uso de ferramentas',
     tipSource: 'De onde os dados de precos foram coletados',
@@ -366,15 +387,16 @@ const I18N = {
     avgInput: 'Сред. вход $/1M', avgOutput: 'Сред. выход $/1M', searchPlaceholder: 'Поиск моделей или провайдеров...', allProviders: 'Все провайдеры',
     vision: 'Зрение', tools: 'Инструменты', hideFree: 'Скрыть бесплатные',
     colProvider: 'Провайдер', colModel: 'Модель', colInput: 'Вход $/1M', colOutput: 'Выход $/1M', colCached: 'Кеш $/1M',
-    colContext: 'Контекст', colVision: 'Зрение', colTools: 'Инструменты', colSource: 'Источник',
-    chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход',
+    colContext: 'Контекст', colMaxOutput: 'Макс выход', colVision: 'Зрение', colTools: 'Инструменты', colSource: 'Источник',
+    chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход', perPage: 'на стр.', page: 'Стр.',
     footerSources: 'Источники: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Нашли ошибку? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Сообщить</a> или <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">отправить PR</a>',
     yes: 'Да', no: 'Нет', free: 'БЕСПЛАТНО',
     tipInput: 'Стоимость за 1 миллион входных токенов (USD)',
     tipOutput: 'Стоимость за 1 миллион выходных токенов (USD)',
     tipCached: 'Скидка при использовании кешированных промптов',
-    tipContext: 'Максимальное количество токенов, которое модель может обработать за раз',
+    tipContext: 'Максимальное количество входных токенов, которое модель может обработать',
+    tipMaxOutput: 'Максимальное количество выходных токенов, которое модель может сгенерировать',
     tipVision: 'Может ли модель обрабатывать изображения на входе',
     tipTools: 'Поддерживает ли модель вызов функций / использование инструментов',
     tipSource: 'Откуда были собраны данные о ценах',
@@ -455,6 +477,7 @@ function getColumns() {
     { key: 'output_price_per_1m', label: t('colOutput'), tip: t('tipOutput'), type: 'number' },
     { key: 'cached_input_price_per_1m', label: t('colCached'), tip: t('tipCached'), type: 'number' },
     { key: 'context_length', label: t('colContext'), tip: t('tipContext'), type: 'number' },
+    { key: 'max_output_tokens', label: t('colMaxOutput'), tip: t('tipMaxOutput'), type: 'number' },
     { key: 'supports_vision', label: t('colVision'), tip: t('tipVision'), type: 'bool' },
     { key: 'supports_function_calling', label: t('colTools'), tip: t('tipTools'), type: 'bool' },
     { key: 'source', label: t('colSource'), tip: t('tipSource'), type: 'string' },
@@ -465,6 +488,9 @@ let allModels = [];
 let sortKey = 'input_price_per_1m';
 let sortAsc = true;
 let data = null;
+let currentPage = 1;
+let pageSize = 30;
+let lastFiltered = [];
 
 async function init() {
   initLangSelect();
@@ -568,9 +594,57 @@ function applyFilters() {
     return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
   });
 
+  lastFiltered = filtered;
+  currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const total = lastFiltered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * pageSize;
+  const pageModels = lastFiltered.slice(start, start + pageSize);
+
   const countOf = (I18N[lang] || I18N.en).countOf || I18N.en.countOf;
-  document.getElementById('count').textContent = countOf(filtered.length, allModels.length);
-  renderTable(filtered);
+  document.getElementById('count').textContent = countOf(lastFiltered.length, allModels.length);
+  renderTable(pageModels);
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1 && lastFiltered.length <= 10) { el.innerHTML = ''; return; }
+
+  let html = `<select class="page-size-select" id="pageSizeSelect">`;
+  for (const s of [10, 30, 50, 100]) {
+    html += `<option value="${s}"${s === pageSize ? ' selected' : ''}>${s} ${t('perPage')}</option>`;
+  }
+  html += `</select>`;
+  html += `<button id="prevPage" ${currentPage <= 1 ? 'disabled' : ''}>&laquo;</button>`;
+
+  const maxBtns = 7;
+  let startP = Math.max(1, currentPage - 3);
+  let endP = Math.min(totalPages, startP + maxBtns - 1);
+  if (endP - startP < maxBtns - 1) startP = Math.max(1, endP - maxBtns + 1);
+  for (let i = startP; i <= endP; i++) {
+    html += `<button class="page-btn${i === currentPage ? ' active' : ''}" data-page="${i}">${i}</button>`;
+  }
+
+  html += `<button id="nextPage" ${currentPage >= totalPages ? 'disabled' : ''}>&raquo;</button>`;
+  html += `<span class="page-info">${t('page')} ${currentPage} / ${totalPages}</span>`;
+  el.innerHTML = html;
+
+  el.querySelector('#pageSizeSelect').addEventListener('change', (e) => {
+    pageSize = parseInt(e.target.value);
+    currentPage = 1;
+    renderPage();
+  });
+  el.querySelector('#prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderPage(); } });
+  el.querySelector('#nextPage').addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderPage(); } });
+  el.querySelectorAll('.page-btn').forEach(btn => {
+    btn.addEventListener('click', () => { currentPage = parseInt(btn.dataset.page); renderPage(); });
+  });
 }
 
 function priceClass(val, max) {
@@ -601,13 +675,18 @@ function renderTable(models) {
     const sourceCell = sourceInfo.url
       ? `<a href="${esc(sourceInfo.url)}" target="_blank" class="source-tag source-link">${esc(sourceInfo.label)}</a>`
       : `<span class="source-tag">${esc(sourceInfo.label)}</span>`;
+    const fmtTokens = (n) => !n ? '-' : n >= 1000 ? (n/1000) + 'K' : n;
+    const modelCell = m.description
+      ? `<span style="position:relative">${esc(m.name)}<span class="desc-preview">${esc(m.description)}</span></span>`
+      : esc(m.name);
     tr.innerHTML = `
       <td>${providerCell}</td>
-      <td class="model-name">${esc(m.name)}</td>
+      <td class="model-name${m.description ? ' model-desc' : ''}">${modelCell}</td>
       <td class="price ${priceClass(m.input_price_per_1m, maxInput)}">${isFree ? `<span class="free-tag">${t('free')}</span>` : '$' + fmt(m.input_price_per_1m)}</td>
       <td class="price ${priceClass(m.output_price_per_1m, maxInput)}">${isFree ? '-' : '$' + fmt(m.output_price_per_1m)}</td>
       <td class="price">${m.cached_input_price_per_1m != null ? '$' + fmt(m.cached_input_price_per_1m) : '-'}</td>
-      <td>${m.context_length ? (m.context_length >= 1000 ? (m.context_length/1000) + 'K' : m.context_length) : '-'}</td>
+      <td>${fmtTokens(m.context_length)}</td>
+      <td>${fmtTokens(m.max_output_tokens)}</td>
       <td>${m.supports_vision ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
       <td>${m.supports_function_calling ? `<span class="badge badge-yes">${t('yes')}</span>` : `<span class="badge badge-no">${t('no')}</span>`}</td>
       <td>${sourceCell}</td>
