@@ -69,6 +69,8 @@ function parseOpenRouterProvider(modelId) {
   return parts.length >= 2 ? parts[0].toLowerCase() : 'unknown';
 }
 
+// OpenRouter: pricing.prompt / pricing.completion = USD per token
+// e.g. GPT-4o: prompt=0.0000025 → × 1,000,000 = $2.5/1M tokens
 function processOpenRouterModels(raw) {
   if (!raw?.data || !Array.isArray(raw.data)) {
     log('[WARN] OpenRouter response missing data array');
@@ -79,6 +81,7 @@ function processOpenRouterModels(raw) {
     .filter(m => m.pricing)
     .map(m => {
       const providerSlug = parseOpenRouterProvider(m.id);
+      // USD per token → USD per 1M tokens
       const inputPrice = parseFloat(m.pricing.prompt || '0') * 1_000_000;
       const outputPrice = parseFloat(m.pricing.completion || '0') * 1_000_000;
       const cachedInput = m.pricing.input_cache_read
@@ -111,6 +114,8 @@ function extractPrice(value) {
   return isNaN(n) ? null : n;
 }
 
+// genai-prices: prices.input_mtok / prices.output_mtok = USD per 1M tokens (already target unit)
+// e.g. GPT-4o: input_mtok=2.5 → $2.5/1M tokens (no conversion needed)
 function processGenAIPrices(raw) {
   if (!Array.isArray(raw)) {
     log('[WARN] genai-prices response is not an array');
@@ -124,6 +129,7 @@ function processGenAIPrices(raw) {
 
     for (const m of provider.models) {
       const prices = m.prices || {};
+      // Already in USD per 1M tokens — no conversion
       const inp = extractPrice(prices.input_mtok);
       const out = extractPrice(prices.output_mtok);
       const cached = extractPrice(prices.cache_read_mtok);
@@ -161,6 +167,10 @@ function normalizeLiteLLMProvider(litellmProvider) {
   return p;
 }
 
+// LiteLLM: input_cost_per_token / output_cost_per_token = USD per token
+// e.g. GPT-4o: input_cost_per_token=0.0000025 → × 1,000,000 = $2.5/1M tokens
+// ⚠ Some providers (e.g. wandb) have incorrect values in upstream data
+//   (e.g. 0.135 per token = $135,000/1M). These are caught by the price sanity filter.
 function processLiteLLMModels(raw) {
   if (!raw || typeof raw !== 'object') {
     log('[WARN] LiteLLM response is not an object');
@@ -175,6 +185,7 @@ function processLiteLLMModels(raw) {
     if (!v.input_cost_per_token || !v.output_cost_per_token) continue;
 
     const providerSlug = normalizeLiteLLMProvider(v.litellm_provider);
+    // USD per token → USD per 1M tokens
     const inputPrice = v.input_cost_per_token * 1_000_000;
     const outputPrice = v.output_cost_per_token * 1_000_000;
     const cachedInput = v.cache_read_input_token_cost
@@ -449,7 +460,9 @@ async function main() {
   const merged = mergeModels(openRouterModels, genaiModels, litellmModels, officialModels);
   log(`Merged total: ${merged.length} models`);
 
-  // Filter out models with absurd prices (likely unit conversion errors in upstream data)
+  // Filter out models with absurd prices (upstream data errors, not unit mismatch in our code).
+  // e.g. LiteLLM's wandb provider has input_cost_per_token=0.135 for DeepSeek R1 (should be ~0.00000055).
+  // Real most expensive models are ~$75/1M (Claude Opus). $1000 threshold gives wide margin.
   const MAX_PRICE_PER_1M = 1000;
   const sane = merged.filter(m => {
     const input = m.input_price_per_1m ?? 0;
