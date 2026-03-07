@@ -29,12 +29,11 @@
 
 > **Disclaimer:** This project is for informational purposes only. Pricing data is collected from third-party aggregators and official pages via automated scraping. While we strive for accuracy, **prices may be outdated, incomplete, or incorrect**. Always verify on each provider's official pricing page before making decisions. This project is not affiliated with any AI provider.
 
-<details>
-<summary><strong>Translations</strong></summary>
-
-[한국어](translations/README.ko.md) | [日本語](translations/README.ja.md) | [中文(简体)](translations/README.zh-CN.md) | [中文(繁體)](translations/README.zh-TW.md) | [Español](translations/README.es.md) | [Français](translations/README.fr.md) | [Deutsch](translations/README.de.md) | [Português](translations/README.pt.md) | [Русский](translations/README.ru.md) | [العربية](translations/README.ar.md) | [हिन्दी](translations/README.hi.md) | [Italiano](translations/README.it.md) | [Türkçe](translations/README.tr.md) | [Tiếng Việt](translations/README.vi.md) | [ไทย](translations/README.th.md) | [Bahasa Indonesia](translations/README.id.md) | [Nederlands](translations/README.nl.md) | [Polski](translations/README.pl.md)
-
-</details>
+<p align="center">
+  <a href="translations/README.ko.md">한국어</a> · <a href="translations/README.ja.md">日本語</a> · <a href="translations/README.zh-CN.md">中文(简体)</a> · <a href="translations/README.zh-TW.md">中文(繁體)</a> · <a href="translations/README.es.md">Español</a> · <a href="translations/README.fr.md">Français</a> · <a href="translations/README.de.md">Deutsch</a> · <a href="translations/README.pt.md">Português</a> · <a href="translations/README.ru.md">Русский</a>
+  <br>
+  <a href="translations/README.ar.md">العربية</a> · <a href="translations/README.hi.md">हिन्दी</a> · <a href="translations/README.it.md">Italiano</a> · <a href="translations/README.tr.md">Türkçe</a> · <a href="translations/README.vi.md">Tiếng Việt</a> · <a href="translations/README.th.md">ไทย</a> · <a href="translations/README.id.md">Bahasa Indonesia</a> · <a href="translations/README.nl.md">Nederlands</a> · <a href="translations/README.pl.md">Polski</a>
+</p>
 
 ---
 
@@ -48,29 +47,49 @@
 - **Interactive dashboard** — search, filter, sort, compare prices with i18n support (18 languages)
 - **Failure resilience** — graceful degradation, previous data preserved, auto-issue on failure
 
-## Quick Start
+## Using the Data
+
+The latest pricing data is freely available as JSON — no installation required:
 
 ```bash
-# Clone and install
-git clone https://github.com/ai-model-price-tracker/ai-model-price-tracker.git
-cd ai-model-price-tracker
-npm install && npx playwright install chromium
-
-# Run the full pipeline
-npm run scrape      # Scrape official pricing pages
-npm run collect     # Collect from APIs + merge scraped data
-npm run validate    # Validate output
-
-# Or just the API sources (no Playwright needed)
-node scripts/collect-prices.mjs
+curl -s https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json | jq .summary
 ```
 
-Output files:
-| File | Description |
-|------|-------------|
-| `outputs/YYYY-MM-DD.json` | Daily snapshot |
-| `outputs/latest.json` | Latest data |
-| `docs/latest.json` | Served via GitHub Pages |
+```javascript
+const res = await fetch('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json');
+const data = await res.json();
+
+// Find all OpenAI models
+const openai = data.providers.find(p => p.provider === 'openai');
+console.log(openai.models.map(m => `${m.name}: $${m.input_price_per_1m}/1M input`));
+```
+
+```python
+import requests
+data = requests.get('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json').json()
+for p in data['providers']:
+    for m in p['models']:
+        if m['input_price_per_1m'] and m['input_price_per_1m'] < 1:
+            print(f"{m['name']}: ${m['input_price_per_1m']}/1M input")
+```
+
+## For LLMs
+
+You can give an LLM access to real-time AI model pricing by adding this to your system prompt:
+
+```
+You have access to AI model pricing data via the following JSON API:
+https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json
+
+The JSON structure is:
+- providers[]: array of providers, each with display_name and models[]
+- models[]: id, name, input_price_per_1m (USD), output_price_per_1m (USD),
+  cached_input_price_per_1m, context_length, supports_vision, supports_function_calling, source
+- summary: total_providers, total_models, cheapest_model, most_expensive_model,
+  average_input_price_per_1m, average_output_price_per_1m
+
+Use this data to answer questions about AI model pricing, compare costs, and recommend models.
+```
 
 ## How It Works
 
@@ -100,15 +119,14 @@ Output files:
 
 | # | Source | Type | Models | License |
 |---|--------|------|--------|---------|
-| 1 | [OpenRouter API](https://openrouter.ai/api/v1/models) | REST API | 350+ | [ToS](https://openrouter.ai/terms) |
-| 2 | [pydantic/genai-prices](https://github.com/pydantic/genai-prices) | JSON (GitHub) | 1,000+ | MIT |
-| 3 | [BerriAI/litellm](https://github.com/BerriAI/litellm) | JSON (GitHub) | 1,800+ | MIT |
-| 4 | Official pages (Playwright) | Web scraping | 200+ | N/A |
+| 1 | Official pages (Playwright) | Web scraping | 200+ | N/A |
+| 2 | [OpenRouter API](https://openrouter.ai/api/v1/models) | REST API | 350+ | [ToS](https://openrouter.ai/terms) |
+| 3 | [pydantic/genai-prices](https://github.com/pydantic/genai-prices) | JSON (GitHub) | 1,000+ | MIT |
+| 4 | [BerriAI/litellm](https://github.com/BerriAI/litellm) | JSON (GitHub) | 1,800+ | MIT |
 
 **Merge priority:** Official scraped prices override aggregator prices. OpenRouter is primary for API data, genai-prices and LiteLLM enrich cache pricing and capability metadata.
 
-<details>
-<summary><strong>Official page scrapers</strong></summary>
+### Official page scrapers
 
 Each scraper is a separate file under [`scripts/scrapers/`](scripts/scrapers/) for easy maintenance:
 
@@ -124,10 +142,7 @@ Each scraper is a separate file under [`scripts/scrapers/`](scripts/scrapers/) f
 
 **Adding a new scraper:** Create a new file in `scripts/scrapers/` exporting `name`, `url`, and `scrape(page)`, then import it in [`scrape-official.mjs`](scripts/scrape-official.mjs).
 
-</details>
-
-<details>
-<summary><strong>Accuracy & limitations</strong></summary>
+### Accuracy & limitations
 
 - All sources are **ultimately derived from official documentation**, directly or through third parties
 - Prices may be **outdated** — providers can change prices at any time without notice
@@ -136,8 +151,6 @@ Each scraper is a separate file under [`scripts/scrapers/`](scripts/scrapers/) f
 - Official scraping may break when providers redesign their pricing pages
 
 Found an error? Please [open an issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) or [submit a PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
-
-</details>
 
 ## Collected Data
 
@@ -151,80 +164,7 @@ Found an error? Please [open an issue](https://github.com/ai-model-price-tracker
 | `supports_function_calling` | Tool use support |
 | `source` | Data source (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
-## Using the Data (JSON API)
-
-The latest data is freely available via GitHub Pages:
-
-```bash
-curl https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json
-```
-
-```javascript
-const res = await fetch('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json');
-const data = await res.json();
-
-// Find all OpenAI models
-const openai = data.providers.find(p => p.provider === 'openai');
-console.log(openai.models.map(m => `${m.name}: $${m.input_price_per_1m}/1M input`));
-
-// Find cheapest model
-console.log(data.summary.cheapest_model);
-```
-
-```python
-import requests
-data = requests.get('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json').json()
-for p in data['providers']:
-    for m in p['models']:
-        if m['input_price_per_1m'] and m['input_price_per_1m'] < 1:
-            print(f"{m['name']}: ${m['input_price_per_1m']}/1M input")
-```
-
-<details>
-<summary><strong>Output JSON schema</strong></summary>
-
-```json
-{
-  "updated_at": "2026-03-07T06:00:00.000Z",
-  "sources": ["openrouter", "genai-prices", "litellm", "official"],
-  "providers": [
-    {
-      "provider": "openai",
-      "display_name": "OpenAI",
-      "official_pricing_url": "https://platform.openai.com/docs/pricing",
-      "models": [
-        {
-          "id": "openai/gpt-4o",
-          "name": "GPT-4o",
-          "input_price_per_1m": 2.5,
-          "output_price_per_1m": 10,
-          "cached_input_price_per_1m": 1.25,
-          "context_length": 128000,
-          "supports_vision": true,
-          "supports_function_calling": true,
-          "supports_streaming": true,
-          "source": "official"
-        }
-      ]
-    }
-  ],
-  "summary": {
-    "total_providers": 116,
-    "total_models": 3176,
-    "cheapest_model": { "..." },
-    "most_expensive_model": { "..." },
-    "average_input_price_per_1m": 1.99,
-    "average_output_price_per_1m": 6.68
-  }
-}
-```
-
-</details>
-
 ## Tracked Providers
-
-<details>
-<summary><strong>16 major providers with official pricing URLs</strong></summary>
 
 | Provider | Official Pricing |
 |----------|-----------------|
@@ -247,8 +187,6 @@ for p in data['providers']:
 
 Plus **100+ additional providers** automatically collected via OpenRouter, genai-prices, and LiteLLM.
 
-</details>
-
 ## GitHub Actions
 
 | Feature | Details |
@@ -268,6 +206,20 @@ Plus **100+ additional providers** automatically collected via OpenRouter, genai
 4. Verify the workflow is enabled in the **Actions** tab
 5. (Optional) Trigger manually via **Actions > Collect AI Model Prices > Run workflow**
 
+### Running locally
+
+```bash
+git clone https://github.com/ai-model-price-tracker/ai-model-price-tracker.git
+cd ai-model-price-tracker
+npm install && npx playwright install chromium
+
+npm run scrape      # Scrape official pricing pages
+npm run collect     # Collect from APIs + merge scraped data
+npm run validate    # Validate output
+```
+
+Output: `outputs/latest.json`, `outputs/YYYY-MM-DD.json`, `docs/latest.json`
+
 ## Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -282,7 +234,9 @@ See [open issues](https://github.com/ai-model-price-tracker/ai-model-price-track
 
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+The **source code** of this project is distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+
+> **Data Notice:** The pricing data (JSON files) is aggregated from third-party sources including [OpenRouter](https://openrouter.ai/terms) and official provider pages. Each source is subject to its own terms of service. **The collected data may not be used for commercial purposes** without independently verifying and complying with each original source's terms. See [`LICENSE`](LICENSE) for details.
 
 ---
 
