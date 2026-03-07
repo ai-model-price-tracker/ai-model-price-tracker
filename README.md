@@ -6,7 +6,7 @@
     <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/"><strong>Live Dashboard »</strong></a>
     <br />
     <br />
-    <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json">JSON API</a>
+    <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/data/latest.json">JSON API</a>
     ·
     <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues">Report Incorrect Price</a>
     ·
@@ -17,14 +17,11 @@
 <p align="center">
   <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml"><img src="https://github.com/ai-model-price-tracker/ai-model-price-tracker/actions/workflows/collect-prices.yml/badge.svg" alt="Collect AI Model Prices"></a>
   <a href="https://ai-model-price-tracker.github.io/ai-model-price-tracker/"><img src="https://img.shields.io/website?url=https%3A%2F%2Fai-model-price-tracker.github.io%2Fai-model-price-tracker%2F&label=dashboard" alt="Dashboard"></a>
-  <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ai-model-price-tracker/ai-model-price-tracker" alt="License"></a>
-  <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen" alt="Node.js 20+">
-  <img src="https://img.shields.io/badge/dependencies-1%20(playwright)-blue" alt="Dependencies">
+  <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fai-model-price-tracker.github.io%2Fai-model-price-tracker%2Fdata%2Flatest.json&query=%24.summary.total_models&label=models%20tracked&color=brightgreen" alt="Models Tracked">
   <br>
   <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/stargazers"><img src="https://img.shields.io/github/stars/ai-model-price-tracker/ai-model-price-tracker" alt="Stars"></a>
   <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues"><img src="https://img.shields.io/github/issues/ai-model-price-tracker/ai-model-price-tracker" alt="Issues"></a>
   <img src="https://img.shields.io/github/last-commit/ai-model-price-tracker/ai-model-price-tracker" alt="Last Commit">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fai-model-price-tracker.github.io%2Fai-model-price-tracker%2Flatest.json&query=%24.summary.total_models&label=models%20tracked&color=brightgreen" alt="Models Tracked">
 </p>
 
 > **Disclaimer:** This project is for informational purposes only. Pricing data is collected from third-party aggregators and official pages via automated scraping. While we strive for accuracy, **prices may be outdated, incomplete, or incorrect**. Always verify on each provider's official pricing page before making decisions. This project is not affiliated with any AI provider.
@@ -52,11 +49,11 @@
 The latest pricing data is freely available as JSON — no installation required:
 
 ```bash
-curl -s https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json | jq .summary
+curl -s https://ai-model-price-tracker.github.io/ai-model-price-tracker/data/latest.json | jq .summary
 ```
 
 ```javascript
-const res = await fetch('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json');
+const res = await fetch('https://ai-model-price-tracker.github.io/ai-model-price-tracker/data/latest.json');
 const data = await res.json();
 
 // Find all OpenAI models
@@ -66,7 +63,7 @@ console.log(openai.models.map(m => `${m.name}: $${m.input_price_per_1m}/1M input
 
 ```python
 import requests
-data = requests.get('https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json').json()
+data = requests.get('https://ai-model-price-tracker.github.io/ai-model-price-tracker/data/latest.json').json()
 for p in data['providers']:
     for m in p['models']:
         if m['input_price_per_1m'] and m['input_price_per_1m'] < 1:
@@ -79,7 +76,7 @@ You can give an LLM access to real-time AI model pricing by adding this to your 
 
 ```
 You have access to AI model pricing data via the following JSON API:
-https://ai-model-price-tracker.github.io/ai-model-price-tracker/latest.json
+https://ai-model-price-tracker.github.io/ai-model-price-tracker/data/latest.json
 
 The JSON structure is:
 - providers[]: array of providers, each with display_name and models[]
@@ -93,28 +90,26 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 ## How It Works
 
-```
-┌───────────────────────────────────────────────────────────┐
-│                  GitHub Actions (Daily)                    │
-│                                                           │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
-│  │  OpenRouter   │ │ genai-prices │ │   LiteLLM    │       │
-│  │  API (350+)   │ │ JSON (1000+) │ │ JSON (1800+) │       │
-│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘       │
-│         │                │                │               │
-│  ┌──────┴────────────────┴────────────────┴──────┐        │
-│  │         Combine (no merge, keep all sources)   │        │
-│  │         + Price sanity filter ($1000/1M cap)   │        │
-│  └──────────────────┬────────────────────────────┘        │
-│                     │                                     │
-│  ┌──────────────┐   ▼                                     │
-│  │  Playwright   │  docs/data/latest.json                 │
-│  │  Official     │  docs/data/YYYY-MM-DD.json             │
-│  │  Scrapers     │  docs/data/YYYY-MM-DD_diff.json        │
-│  └──────┬───────┘                                         │
-│         ▼                                                 │
-│  docs/data/official-prices.json                           │
-└───────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    GH["⏰ GitHub Actions (Daily)"]
+
+    OR["OpenRouter API\n350+ models"]
+    GP["genai-prices\n1,000+ models"]
+    LL["LiteLLM\n1,800+ models"]
+    PW["🎭 Playwright\nOfficial Scrapers"]
+
+    COMBINE["Combine — keep all sources\n+ price sanity filter ($1000/1M cap)"]
+    OFFICIAL["docs/data/official-prices.json"]
+
+    OUT1["docs/data/latest.json"]
+    OUT2["docs/data/YYYY-MM-DD.json"]
+    OUT3["docs/data/YYYY-MM-DD_diff.json"]
+
+    GH --> OR & GP & LL & PW
+    OR & GP & LL --> COMBINE
+    PW --> OFFICIAL --> COMBINE
+    COMBINE --> OUT1 & OUT2 & OUT3
 ```
 
 ## Data Sources
@@ -220,7 +215,7 @@ npm run collect     # Collect from APIs + merge scraped data
 npm run validate    # Validate output
 ```
 
-Output: `outputs/latest.json`, `outputs/YYYY-MM-DD.json`, `docs/latest.json`
+Output: `docs/data/latest.json`, `docs/data/YYYY-MM-DD.json`, `docs/data/YYYY-MM-DD_diff.json`
 
 ## Contributing
 
