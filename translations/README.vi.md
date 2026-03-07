@@ -150,6 +150,19 @@ Mỗi scraper là một tệp riêng biệt trong [`scripts/scrapers/`](scripts/
 
 Phát hiện lỗi? Vui lòng [mở một issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) hoặc [gửi một PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Thuật Ngữ
+
+| Thuật ngữ | Mô tả |
+|-----------|-------|
+| **Token** | Đơn vị cơ bản mà mô hình AI sử dụng để xử lý văn bản. 1 token ≈ 3/4 một từ. Giá được hiển thị theo 1 triệu token. |
+| **Token đầu vào** | Văn bản/dữ liệu gửi đến mô hình (prompt, ngữ cảnh, hướng dẫn). |
+| **Token đầu ra** | Văn bản mô hình tạo ra để phản hồi. Thường đắt hơn đầu vào. |
+| **Cửa sổ ngữ cảnh** | Số token tối đa mà mô hình có thể xử lý trong một cuộc hội thoại (đầu vào + đầu ra). |
+| **Đầu vào được cache** | Giá chiết khấu khi tái sử dụng cùng tiền tố prompt giữa các yêu cầu. |
+| **Giá theo lô** | Giá chiết khấu cho các yêu cầu hàng loạt không khẩn cấp được xử lý bất đồng bộ. |
+| **Gọi hàm** | Khả năng của mô hình gọi công cụ bên ngoài hoặc API trong quá trình tạo. |
+| **Thị giác** | Khả năng của mô hình xử lý và hiểu hình ảnh đầu vào. |
+
 ## Dữ Liệu Thu Thập
 
 | Trường | Mô tả |
@@ -157,9 +170,9 @@ Phát hiện lỗi? Vui lòng [mở một issue](https://github.com/ai-model-pri
 | `input_price_per_1m` | Chi phí cho 1M token đầu vào (USD) |
 | `output_price_per_1m` | Chi phí cho 1M token đầu ra (USD) |
 | `cached_input_price_per_1m` | Chi phí giảm giá cho 1M token đầu vào đã cache |
-| `context_length` | Kích thước cửa sổ ngữ cảnh tối đa |
-| `supports_vision` | Hỗ trợ đầu vào hình ảnh |
-| `supports_function_calling` | Hỗ trợ sử dụng công cụ |
+| `context_length` | Kích thước cửa sổ ngữ cảnh tối đa (tính bằng token) |
+| `supports_vision` | Mô hình có thể xử lý đầu vào hình ảnh hay không |
+| `supports_function_calling` | Mô hình có thể gọi công cụ/hàm bên ngoài hay không |
 | `source` | Nguồn dữ liệu (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Nhà Cung Cấp Được Theo Dõi

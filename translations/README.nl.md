@@ -150,6 +150,19 @@ Elke scraper is een apart bestand onder [`scripts/scrapers/`](scripts/scrapers/)
 
 Een fout gevonden? [Open een issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) of [dien een PR in](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Woordenlijst
+
+| Term | Beschrijving |
+|------|-------------|
+| **Token** | De basiseenheid die AI-modellen gebruiken om tekst te verwerken. 1 token ≈ 3/4 van een woord. Prijzen worden per 1 miljoen tokens weergegeven. |
+| **Invoertokens** | Tekst/gegevens die naar het model worden gestuurd (prompt, context, instructies). |
+| **Uitvoertokens** | Tekst die het model genereert als antwoord. Over het algemeen duurder dan invoer. |
+| **Contextvenster** | Max tokens die een model kan verwerken in een gesprek (invoer + uitvoer gecombineerd). |
+| **Gecachte invoer** | Kortingsprijs bij hergebruik van hetzelfde prompt-voorvoegsel tussen verzoeken. |
+| **Batchprijzen** | Kortingsprijzen voor niet-urgente bulkverzoeken die asynchroon worden verwerkt. |
+| **Functieaanroep** | Het vermogen van het model om externe tools of API's aan te roepen tijdens het genereren. |
+| **Visie** | Het vermogen van het model om afbeeldingsinvoer te verwerken en te begrijpen. |
+
 ## Verzamelde Gegevens
 
 | Veld | Beschrijving |
@@ -157,9 +170,9 @@ Een fout gevonden? [Open een issue](https://github.com/ai-model-price-tracker/ai
 | `input_price_per_1m` | Kosten per 1M invoertokens (USD) |
 | `output_price_per_1m` | Kosten per 1M uitvoertokens (USD) |
 | `cached_input_price_per_1m` | Gereduceerde kosten per 1M gecachte invoertokens |
-| `context_length` | Maximale contextvenstergrootte |
-| `supports_vision` | Ondersteuning voor beeldinvoer |
-| `supports_function_calling` | Ondersteuning voor toolgebruik |
+| `context_length` | Maximale contextvenstergrootte (in tokens) |
+| `supports_vision` | Of het model afbeeldingsinvoer kan verwerken |
+| `supports_function_calling` | Of het model externe tools/functies kan aanroepen |
 | `source` | Gegevensbron (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Gevolgde Aanbieders

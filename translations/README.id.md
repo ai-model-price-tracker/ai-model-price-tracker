@@ -150,6 +150,19 @@ Setiap scraper adalah file terpisah di bawah [`scripts/scrapers/`](scripts/scrap
 
 Menemukan kesalahan? Silakan [buka issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) atau [kirim PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glosarium
+
+| Istilah | Deskripsi |
+|---------|-----------|
+| **Token** | Unit dasar yang digunakan model AI untuk memproses teks. 1 token ≈ 3/4 kata. Harga ditampilkan per 1 juta token. |
+| **Token input** | Teks/data yang dikirim ke model (prompt, konteks, instruksi). |
+| **Token output** | Teks yang dihasilkan model sebagai respons. Umumnya lebih mahal dari input. |
+| **Jendela konteks** | Jumlah token maksimum yang dapat diproses model dalam satu percakapan (input + output gabungan). |
+| **Input ter-cache** | Harga diskon saat menggunakan kembali prefiks prompt yang sama antar permintaan. |
+| **Harga batch** | Harga diskon untuk permintaan massal yang tidak mendesak yang diproses secara asinkron. |
+| **Pemanggilan fungsi** | Kemampuan model untuk memanggil alat eksternal atau API selama proses generasi. |
+| **Visi** | Kemampuan model untuk memproses dan memahami input gambar. |
+
 ## Data yang Dikumpulkan
 
 | Field | Deskripsi |
@@ -157,9 +170,9 @@ Menemukan kesalahan? Silakan [buka issue](https://github.com/ai-model-price-trac
 | `input_price_per_1m` | Biaya per 1M token input (USD) |
 | `output_price_per_1m` | Biaya per 1M token output (USD) |
 | `cached_input_price_per_1m` | Biaya diskon per 1M token input yang di-cache |
-| `context_length` | Ukuran jendela konteks maksimum |
-| `supports_vision` | Dukungan input gambar |
-| `supports_function_calling` | Dukungan penggunaan alat |
+| `context_length` | Ukuran jendela konteks maksimum (dalam token) |
+| `supports_vision` | Apakah model dapat memproses input gambar |
+| `supports_function_calling` | Apakah model dapat memanggil alat/fungsi eksternal |
 | `source` | Sumber data (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Penyedia yang Dilacak

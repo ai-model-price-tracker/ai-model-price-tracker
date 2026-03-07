@@ -152,6 +152,19 @@ Her kazıyıcı, kolay bakım için [`scripts/scrapers/`](scripts/scrapers/) alt
 
 Bir hata mı buldunuz? Lütfen [bir sorun açın](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) veya [bir PR gönderin](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Terimler Sozlugu
+
+| Terim | Aciklama |
+|-------|----------|
+| **Token** | Yapay zeka modellerinin metni islemek icin kullandigi temel birim. 1 token ≈ bir kelimenin 3/4'u. Fiyatlar 1 milyon token basina gosterilir. |
+| **Giris tokenleri** | Modele gonderilen metin/veri (istem, baglam, talimatlar). |
+| **Cikis tokenleri** | Modelin yanit olarak olusturdugu metin. Genellikle giristen daha pahalidir. |
+| **Baglam penceresi** | Bir konusmada modelin isleyebildigi maksimum token sayisi (giris + cikis toplami). |
+| **Onbelleklenmis giris** | Ayni istem onekini yeniden kullanirken uygulanan indirimli fiyat. |
+| **Toplu fiyatlandirma** | Acil olmayan toplu istekler icin indirimli fiyatlandirma. Yanitlar saatler surebilir ancak maliyet onemli olcude dusuktur. |
+| **Fonksiyon cagrisi** | Modelin uretim sirasinda harici araclar veya API'ler cagirma yetenegi. |
+| **Gorsel** | Modelin gorsel girdilerini isleme ve anlama yetenegi. |
+
 ## Toplanan Veriler
 
 | Alan | Açıklama |
@@ -159,9 +172,9 @@ Bir hata mı buldunuz? Lütfen [bir sorun açın](https://github.com/ai-model-pr
 | `input_price_per_1m` | 1M girdi token başına maliyet (USD) |
 | `output_price_per_1m` | 1M çıktı token başına maliyet (USD) |
 | `cached_input_price_per_1m` | 1M önbelleğe alınmış girdi token için indirimli maliyet |
-| `context_length` | Maksimum bağlam penceresi boyutu |
-| `supports_vision` | Görüntü girdi desteği |
-| `supports_function_calling` | Araç kullanım desteği |
+| `context_length` | Maksimum bağlam penceresi boyutu (token cinsinden) |
+| `supports_vision` | Modelin görüntü girdilerini işleyip işleyemediği |
+| `supports_function_calling` | Modelin harici araçları/fonksiyonları çağırıp çağıramadığı |
 | `source` | Veri kaynağı (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Takip Edilen Sağlayıcılar

@@ -152,6 +152,19 @@ Ogni scraper è un file separato sotto [`scripts/scrapers/`](scripts/scrapers/) 
 
 Trovato un errore? Per favore [apri una issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) o [invia una PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glossario
+
+| Termine | Descrizione |
+|---------|-------------|
+| **Token** | L'unita base utilizzata dai modelli di IA per elaborare il testo. 1 token ≈ 3/4 di una parola. I prezzi sono per 1 milione di token. |
+| **Token di input** | Testo/dati inviati al modello (prompt, contesto, istruzioni). |
+| **Token di output** | Testo generato dal modello in risposta. Generalmente piu costoso dell'input. |
+| **Finestra di contesto** | Max token che un modello puo elaborare in una conversazione (input + output combinati). |
+| **Input in cache** | Prezzo scontato quando si riutilizza lo stesso prefisso di prompt tra le richieste. |
+| **Prezzi batch** | Prezzi ridotti per richieste di massa non urgenti elaborate in modo asincrono. |
+| **Chiamata a funzioni** | Capacita del modello di chiamare strumenti esterni o API durante la generazione. |
+| **Visione** | Capacita del modello di elaborare e comprendere immagini in input. |
+
 ## Dati Raccolti
 
 | Campo | Descrizione |
@@ -159,9 +172,9 @@ Trovato un errore? Per favore [apri una issue](https://github.com/ai-model-price
 | `input_price_per_1m` | Costo per 1M di token di input (USD) |
 | `output_price_per_1m` | Costo per 1M di token di output (USD) |
 | `cached_input_price_per_1m` | Costo scontato per 1M di token di input in cache |
-| `context_length` | Dimensione massima della finestra di contesto |
-| `supports_vision` | Supporto per input di immagini |
-| `supports_function_calling` | Supporto per l'uso di strumenti |
+| `context_length` | Dimensione massima della finestra di contesto (in token) |
+| `supports_vision` | Se il modello puo elaborare immagini in input |
+| `supports_function_calling` | Se il modello puo chiamare strumenti/funzioni esterne |
 | `source` | Fonte dei dati (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Fornitori Monitorati

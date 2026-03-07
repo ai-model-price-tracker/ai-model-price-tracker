@@ -150,6 +150,19 @@ Każdy scraper to osobny plik w katalogu [`scripts/scrapers/`](scripts/scrapers/
 
 Znalazłeś błąd? [Otwórz issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) lub [wyślij PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Slownik pojec
+
+| Pojecie | Opis |
+|---------|------|
+| **Token** | Podstawowa jednostka przetwarzania tekstu przez modele AI. 1 token ≈ 3/4 slowa. Ceny sa podawane za 1 milion tokenow. |
+| **Tokeny wejsciowe** | Tekst/dane wysylane do modelu (prompt, kontekst, instrukcje). |
+| **Tokeny wyjsciowe** | Tekst generowany przez model w odpowiedzi. Zazwyczaj drozsze niz wejsciowe. |
+| **Okno kontekstowe** | Maks. tokenow, ktore model moze przetworzyc w jednej rozmowie (wejscie + wyjscie lacznie). |
+| **Wejscie z cache** | Obnizzona cena przy ponownym uzyciu tego samego prefiksu promptu miedzy zapytaniami. |
+| **Ceny hurtowe** | Obnizione ceny dla niepionych zapytan masowych przetwarzanych asynchronicznie. |
+| **Wywolywanie funkcji** | Zdolnosc modelu do wywolywania zewnetrznych narzedzi lub API podczas generowania. |
+| **Wizja** | Zdolnosc modelu do przetwarzania i rozumienia obrazow na wejsciu. |
+
 ## Zbierane Dane
 
 | Pole | Opis |
@@ -157,9 +170,9 @@ Znalazłeś błąd? [Otwórz issue](https://github.com/ai-model-price-tracker/ai
 | `input_price_per_1m` | Koszt za 1M tokenów wejściowych (USD) |
 | `output_price_per_1m` | Koszt za 1M tokenów wyjściowych (USD) |
 | `cached_input_price_per_1m` | Obniżony koszt za 1M tokenów wejściowych z cache |
-| `context_length` | Maksymalny rozmiar okna kontekstu |
-| `supports_vision` | Obsługa wejścia obrazowego |
-| `supports_function_calling` | Obsługa użycia narzędzi |
+| `context_length` | Maksymalny rozmiar okna kontekstu (w tokenach) |
+| `supports_vision` | Czy model może przetwarzać obrazy jako dane wejściowe |
+| `supports_function_calling` | Czy model może wywoływać zewnętrzne narzędzia/funkcje |
 | `source` | Źródło danych (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Śledzeni Dostawcy

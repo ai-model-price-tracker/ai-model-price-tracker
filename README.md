@@ -149,16 +149,29 @@ Each scraper is a separate file under [`scripts/scrapers/`](scripts/scrapers/) f
 
 Found an error? Please [open an issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) or [submit a PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glossary
+
+| Term | Description |
+|------|-------------|
+| **Token** | The basic unit AI models use to process text. 1 token ≈ 3/4 of an English word. Prices in this tracker are per 1 million tokens. |
+| **Input tokens** | Text/data you send to the model (prompt, context, instructions). |
+| **Output tokens** | Text the model generates in response. Typically more expensive than input. |
+| **Context window** | Max tokens a model can process in one conversation (input + output combined). |
+| **Cached input** | Discounted price when reusing the same prompt prefix across requests. |
+| **Batch pricing** | Lower pricing for non-urgent bulk requests processed asynchronously (hours, not seconds). |
+| **Function calling** | The model's ability to call external tools or APIs during generation. |
+| **Vision** | The model's ability to process and understand image inputs. |
+
 ## Collected Data
 
 | Field | Description |
 |-------|-------------|
-| `input_price_per_1m` | Cost per 1M input tokens (USD) |
+| `input_price_per_1m` | Cost per 1M input tokens (USD) — see [Glossary](#glossary) |
 | `output_price_per_1m` | Cost per 1M output tokens (USD) |
 | `cached_input_price_per_1m` | Discounted cost per 1M cached input tokens |
-| `context_length` | Maximum context window size |
-| `supports_vision` | Image input support |
-| `supports_function_calling` | Tool use support |
+| `context_length` | Maximum context window size (in tokens) |
+| `supports_vision` | Whether the model can process image inputs |
+| `supports_function_calling` | Whether the model can call external tools/functions |
 | `source` | Data source (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Tracked Providers

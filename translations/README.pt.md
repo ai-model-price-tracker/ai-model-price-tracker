@@ -152,6 +152,19 @@ Cada scraper e um arquivo separado em [`scripts/scrapers/`](scripts/scrapers/) p
 
 Encontrou um erro? Por favor, [abra uma issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) ou [envie um PR](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glossario
+
+| Termo | Descricao |
+|-------|-----------|
+| **Token** | A unidade basica que modelos de IA usam para processar texto. 1 token ≈ 3/4 de uma palavra. Precos sao por 1 milhao de tokens. |
+| **Tokens de entrada** | Texto/dados enviados ao modelo (prompt, contexto, instrucoes). |
+| **Tokens de saida** | Texto gerado pelo modelo em resposta. Geralmente mais caro que a entrada. |
+| **Janela de contexto** | Max de tokens que um modelo pode processar em uma conversa (entrada + saida combinados). |
+| **Entrada em cache** | Preco com desconto ao reutilizar o mesmo prefixo de prompt entre solicitacoes. |
+| **Preco por lote** | Precos reduzidos para solicitacoes em massa nao urgentes processadas de forma assincrona. |
+| **Chamada de funcoes** | Capacidade do modelo de chamar ferramentas externas ou APIs durante a geracao. |
+| **Visao** | Capacidade do modelo de processar e compreender imagens como entrada. |
+
 ## Dados Coletados
 
 | Campo | Descricao |
@@ -159,9 +172,9 @@ Encontrou um erro? Por favor, [abra uma issue](https://github.com/ai-model-price
 | `input_price_per_1m` | Custo por 1M de tokens de entrada (USD) |
 | `output_price_per_1m` | Custo por 1M de tokens de saida (USD) |
 | `cached_input_price_per_1m` | Custo com desconto por 1M de tokens de entrada em cache |
-| `context_length` | Tamanho maximo da janela de contexto |
-| `supports_vision` | Suporte a entrada de imagem |
-| `supports_function_calling` | Suporte ao uso de ferramentas |
+| `context_length` | Tamanho maximo da janela de contexto (em tokens) |
+| `supports_vision` | Se o modelo pode processar imagens como entrada |
+| `supports_function_calling` | Se o modelo pode chamar ferramentas/funcoes externas |
 | `source` | Fonte dos dados (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Provedores Rastreados

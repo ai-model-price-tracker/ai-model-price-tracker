@@ -152,6 +152,19 @@ Jeder Scraper ist eine separate Datei unter [`scripts/scrapers/`](scripts/scrape
 
 Einen Fehler gefunden? Bitte [erstellen Sie ein Issue](https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues) oder [reichen Sie einen PR ein](https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls).
 
+## Glossar
+
+| Begriff | Beschreibung |
+|---------|-------------|
+| **Token** | Die Grundeinheit, mit der KI-Modelle Text verarbeiten. 1 Token ≈ 3/4 eines Wortes. Preise werden pro 1 Million Tokens angezeigt. |
+| **Eingabe-Tokens** | Text/Daten, die Sie an das Modell senden (Prompt, Kontext, Anweisungen). |
+| **Ausgabe-Tokens** | Vom Modell generierter Antworttext. In der Regel teurer als Eingabe. |
+| **Kontextfenster** | Max Tokens, die ein Modell in einer Konversation verarbeiten kann (Eingabe + Ausgabe kombiniert). |
+| **Gecachte Eingabe** | Ermassigter Preis bei Wiederverwendung desselben Prompt-Prafixes. |
+| **Batch-Preise** | Ermasstigte Preise fur nicht dringende Massenanfragen, die asynchron verarbeitet werden. |
+| **Funktionsaufruf** | Die Fahigkeit des Modells, wahrend der Generierung externe Tools oder APIs aufzurufen. |
+| **Vision** | Die Fahigkeit des Modells, Bildeingaben zu verarbeiten und zu verstehen. |
+
 ## Erfasste Daten
 
 | Feld | Beschreibung |
@@ -159,9 +172,9 @@ Einen Fehler gefunden? Bitte [erstellen Sie ein Issue](https://github.com/ai-mod
 | `input_price_per_1m` | Kosten pro 1M Eingabe-Token (USD) |
 | `output_price_per_1m` | Kosten pro 1M Ausgabe-Token (USD) |
 | `cached_input_price_per_1m` | Ermäßigte Kosten pro 1M zwischengespeicherter Eingabe-Token |
-| `context_length` | Maximale Kontextfenstergröße |
-| `supports_vision` | Bildeingabe-Unterstützung |
-| `supports_function_calling` | Tool-Nutzungs-Unterstützung |
+| `context_length` | Maximale Kontextfenstergröße (in Tokens) |
+| `supports_vision` | Ob das Modell Bildeingaben verarbeiten kann |
+| `supports_function_calling` | Ob das Modell externe Tools/Funktionen aufrufen kann |
 | `source` | Datenquelle (`openrouter`, `genai-prices`, `litellm`, `official`) |
 
 ## Verfolgte Anbieter
