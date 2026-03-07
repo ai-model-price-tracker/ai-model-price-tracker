@@ -132,13 +132,13 @@ Her kazıyıcı, kolay bakım için [`scripts/scrapers/`](scripts/scrapers/) alt
 
 | Dosya | Sağlayıcı | Durum |
 |-------|-----------|-------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | Çalışıyor |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | Çalışıyor |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | Çalışıyor |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | Çalışıyor |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | Çalışıyor |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — API'ye geri dönüş |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — API'ye geri dönüş |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **Yeni kazıyıcı ekleme:** `scripts/scrapers/` içinde `name`, `url` ve `scrape(page)` dışa aktaran yeni bir dosya oluşturun, ardından [`scrape-official.mjs`](scripts/scrape-official.mjs) dosyasına içe aktarın.
 

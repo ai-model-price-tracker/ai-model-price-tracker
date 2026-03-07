@@ -132,13 +132,13 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 | ファイル | プロバイダー | 状態 |
 |----------|--------------|------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | 稼働中 |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | 稼働中 |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | 稼働中 |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | 稼働中 |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | 稼働中 |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — APIフォールバック |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — APIフォールバック |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **新しいスクレイパーの追加方法:** `scripts/scrapers/`に`name`、`url`、`scrape(page)`をエクスポートする新しいファイルを作成し、[`scrape-official.mjs`](scripts/scrape-official.mjs)でインポートしてください。
 

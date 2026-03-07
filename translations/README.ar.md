@@ -132,13 +132,13 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 
 | الملف | المزوّد | الحالة |
 |-------|---------|--------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | يعمل |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | يعمل |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | يعمل |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | يعمل |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | يعمل |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — احتياطي عبر API |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — احتياطي عبر API |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **إضافة أداة استخراج جديدة:** أنشئ ملفًا جديدًا في `scripts/scrapers/` يصدّر `name` و`url` و`scrape(page)`، ثم استورده في [`scrape-official.mjs`](scripts/scrape-official.mjs).
 

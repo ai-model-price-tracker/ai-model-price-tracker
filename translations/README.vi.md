@@ -131,13 +131,13 @@ Mỗi scraper là một tệp riêng biệt trong [`scripts/scrapers/`](scripts/
 
 | Tệp | Nhà cung cấp | Trạng thái |
 |-----|--------------|------------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | Hoạt động |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | Hoạt động |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | Hoạt động |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | Hoạt động |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | Hoạt động |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — fallback sang API |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — fallback sang API |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **Thêm scraper mới:** Tạo tệp mới trong `scripts/scrapers/` export `name`, `url`, và `scrape(page)`, sau đó import vào [`scrape-official.mjs`](scripts/scrape-official.mjs).
 

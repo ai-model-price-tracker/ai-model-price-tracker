@@ -132,13 +132,13 @@ Jeder Scraper ist eine separate Datei unter [`scripts/scrapers/`](scripts/scrape
 
 | Datei | Anbieter | Status |
 |-------|----------|--------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | Funktioniert |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | Funktioniert |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | Funktioniert |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | Funktioniert |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | Funktioniert |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — Fallback auf API |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — Fallback auf API |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **Neuen Scraper hinzufügen:** Erstellen Sie eine neue Datei in `scripts/scrapers/`, die `name`, `url` und `scrape(page)` exportiert, und importieren Sie sie in [`scrape-official.mjs`](scripts/scrape-official.mjs).
 

@@ -132,13 +132,13 @@ Scraper แต่ละตัวเป็นไฟล์แยกภายใต
 
 | ไฟล์ | ผู้ให้บริการ | สถานะ |
 |------|-------------|-------|
-| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ใช้งานได้ |
-| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ใช้งานได้ |
-| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ใช้งานได้ |
-| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ใช้งานได้ |
-| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ใช้งานได้ |
-| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | SPA — fallback ไปยัง API |
-| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | SPA — fallback ไปยัง API |
+| [`anthropic.mjs`](scripts/scrapers/anthropic.mjs) | Anthropic (Claude) | ✅ 3 models |
+| [`openai.mjs`](scripts/scrapers/openai.mjs) | OpenAI | ✅ 59 models |
+| [`google-gemini.mjs`](scripts/scrapers/google-gemini.mjs) | Google Gemini | ✅ 18 models |
+| [`deepseek.mjs`](scripts/scrapers/deepseek.mjs) | DeepSeek | ✅ 2 models |
+| [`aws-bedrock.mjs`](scripts/scrapers/aws-bedrock.mjs) | AWS Bedrock | ✅ 164 models |
+| [`mistral.mjs`](scripts/scrapers/mistral.mjs) | Mistral | ⚠️ 0 models |
+| [`xai.mjs`](scripts/scrapers/xai.mjs) | xAI (Grok) | ⚠️ 0 models |
 
 **เพิ่ม scraper ใหม่:** สร้างไฟล์ใหม่ใน `scripts/scrapers/` ที่ export `name`, `url` และ `scrape(page)` จากนั้น import ใน [`scrape-official.mjs`](scripts/scrape-official.mjs)
 
