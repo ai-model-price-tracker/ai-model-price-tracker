@@ -50,18 +50,23 @@ export async function scrape(page) {
 
       let inputPrice = null;
       let outputPrice = null;
+      let cachedPrice = null;
 
       for (const row of el.rows) {
         const label = (row[0] || '').toLowerCase();
         const paidCell = row[row.length - 1] || '';
 
-        if (label.includes('input price')) {
+        if (label.includes('input price') && !label.includes('cach')) {
           const match = paidCell.match(/\$([0-9.]+)/);
           if (match) inputPrice = parseFloat(match[1]);
         }
         if (label.includes('output price')) {
           const match = paidCell.match(/\$([0-9.]+)/);
           if (match) outputPrice = parseFloat(match[1]);
+        }
+        if (label.includes('cach') && label.includes('price')) {
+          const match = paidCell.match(/\$([0-9.]+)/);
+          if (match) cachedPrice = parseFloat(match[1]);
         }
       }
 
@@ -74,7 +79,7 @@ export async function scrape(page) {
           name: currentHeading,
           input_price_per_1m: round(inputPrice),
           output_price_per_1m: round(outputPrice),
-          cached_input_price_per_1m: null,
+          cached_input_price_per_1m: cachedPrice != null ? round(cachedPrice) : null,
           context_length: null,
           supports_vision: true,
           supports_function_calling: !currentHeading.toLowerCase().includes('embedding'),

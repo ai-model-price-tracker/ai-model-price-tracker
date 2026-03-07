@@ -14,32 +14,55 @@ export async function scrape(page) {
   const tables = await extractTables(page);
 
   for (const table of tables) {
+    if (table.length < 2) continue;
+    const headerRow = table[0];
+
+    // Find model names from header row (e.g. "deepseek-chat", "deepseek-reasoner")
+    const modelCols = [];
+    for (let i = 1; i < headerRow.length; i++) {
+      const match = headerRow[i].match(/(deepseek[-\w]*)/i);
+      if (match) modelCols.push({ col: i, name: match[1] });
+    }
+    if (modelCols.length === 0) continue;
+
+    // Collect pricing from rows
+    let cacheHitPrices = {};
+    let cacheMissPrices = {};
+    let outputPrices = {};
+
     for (const row of table) {
-      const rowText = row.join(' ');
-      const modelMatch = rowText.match(/(deepseek[-\w]*)/i);
-      if (!modelMatch) continue;
+      // Pricing rows may span columns — check label across all cells
+      const rowText = row.join(' ').toLowerCase();
+      const priceMatch = row.join(' ').match(/\$([0-9.]+)/);
+      if (!priceMatch) continue;
+      const price = parseFloat(priceMatch[1]);
 
-      const cacheMissMatch = rowText.match(/cache\s*miss[^$]*\$([0-9.]+)/i);
-      const cacheHitMatch = rowText.match(/cache\s*hit[^$]*\$([0-9.]+)/i);
-      const outputMatch = rowText.match(/output[^$]*\$([0-9.]+)/i);
-
-      if (cacheMissMatch && outputMatch) {
-        const modelName = modelMatch[1];
-        if (models.some(m => m.name === modelName)) continue;
-        models.push({
-          provider: 'deepseek',
-          id: `deepseek/${modelName.toLowerCase()}`,
-          name: modelName,
-          input_price_per_1m: round(parseFloat(cacheMissMatch[1])),
-          output_price_per_1m: round(parseFloat(outputMatch[1])),
-          cached_input_price_per_1m: cacheHitMatch ? round(parseFloat(cacheHitMatch[1])) : null,
-          context_length: 128000,
-          supports_vision: false,
-          supports_function_calling: true,
-          supports_streaming: true,
-          source: 'official',
-        });
+      for (const mc of modelCols) {
+        if (rowText.includes('cache hit')) cacheHitPrices[mc.name] = price;
+        else if (rowText.includes('cache miss')) cacheMissPrices[mc.name] = price;
+        else if (rowText.includes('input') && !rowText.includes('cache')) cacheMissPrices[mc.name] = price;
+        if (rowText.includes('output')) outputPrices[mc.name] = price;
       }
+    }
+
+    for (const mc of modelCols) {
+      const input = cacheMissPrices[mc.name];
+      const output = outputPrices[mc.name];
+      if (input == null || output == null) continue;
+      if (models.some(m => m.name === mc.name)) continue;
+      models.push({
+        provider: 'deepseek',
+        id: `deepseek/${mc.name.toLowerCase()}`,
+        name: mc.name,
+        input_price_per_1m: round(input),
+        output_price_per_1m: round(output),
+        cached_input_price_per_1m: cacheHitPrices[mc.name] != null ? round(cacheHitPrices[mc.name]) : null,
+        context_length: 128000,
+        supports_vision: false,
+        supports_function_calling: true,
+        supports_streaming: true,
+        source: 'official',
+      });
     }
   }
 

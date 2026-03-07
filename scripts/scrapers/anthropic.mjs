@@ -17,12 +17,14 @@ export async function scrape(page) {
     let pricingRow = null;
     let idRow = null;
     let contextRow = null;
+    let cacheRow = null;
     for (const row of table) {
       if (!row[0]) continue;
       const label = row[0].toLowerCase();
       if (label.includes('pricing')) pricingRow = row;
       if (label.includes('claude api id') || label.includes('api id')) idRow = row;
       if (label.includes('context window')) contextRow = row;
+      if (label.includes('cach')) cacheRow = row;
     }
 
     if (!pricingRow || !idRow) continue;
@@ -37,10 +39,17 @@ export async function scrape(page) {
       const outputMatch = priceText.match(/\$([0-9.]+)\s*\/?\s*output\s*MTok/i);
       const contextMatch = contextText.match(/([\d,]+)K?\s*tokens/i);
 
+      // Try to find cache read price from pricing text or dedicated cache row
+      const cacheText = cacheRow?.[i] || priceText;
+      const cacheReadMatch = cacheText.match(/cache[d]?\s*read[:\s]*\$([0-9.]+)\s*\/?\s*MTok/i)
+        || cacheText.match(/\$([0-9.]+)\s*\/?\s*cache[d]?\s*read\s*MTok/i)
+        || cacheText.match(/read[:\s]*\$([0-9.]+)/i);
+
       if (inputMatch && outputMatch) {
         const contextLen = contextMatch
           ? parseInt(contextMatch[1].replace(/,/g, '')) * (contextText.includes('K') || parseInt(contextMatch[1]) < 1000 ? 1000 : 1)
           : null;
+        const cachedPrice = cacheReadMatch ? round(parseFloat(cacheReadMatch[1])) : null;
 
         models.push({
           provider: 'anthropic',
@@ -48,7 +57,7 @@ export async function scrape(page) {
           name,
           input_price_per_1m: round(parseFloat(inputMatch[1])),
           output_price_per_1m: round(parseFloat(outputMatch[1])),
-          cached_input_price_per_1m: null,
+          cached_input_price_per_1m: cachedPrice,
           context_length: contextLen,
           supports_vision: true,
           supports_function_calling: true,
