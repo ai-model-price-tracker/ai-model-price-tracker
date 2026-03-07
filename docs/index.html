@@ -163,7 +163,15 @@
   <div class="pagination" id="pagination"></div>
 
   <div class="chart-section">
-    <h2 id="chartTitle"></h2>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+      <h2 id="chartTitle" style="margin:0"></h2>
+      <select id="chartMode" class="page-size-select">
+        <option value="input-desc" id="cmInputDesc"></option>
+        <option value="input-asc" id="cmInputAsc"></option>
+        <option value="output-desc" id="cmOutputDesc"></option>
+        <option value="output-asc" id="cmOutputAsc"></option>
+      </select>
+    </div>
     <div class="legend">
       <span><span class="legend-dot" style="background:#4361ee"></span> <span id="legendInput"></span></span>
       <span><span class="legend-dot" style="background:#e63946"></span> <span id="legendOutput"></span></span>
@@ -224,7 +232,9 @@ const I18N = {
     colProvider: 'Provider', colModel: 'Model',
     colInput: 'Input $/1M', colOutput: 'Output $/1M', colCached: 'Cached $/1M',
     colContext: 'Context', colMaxOutput: 'Max Output', colSource: 'Source',
-    chartTitle: 'Top 20 Models by Input Price ($/1M tokens)',
+    chartTitle: 'Top 20 Models ($/1M tokens)',
+    cmInputDesc: 'Input: High → Low', cmInputAsc: 'Input: Low → High',
+    cmOutputDesc: 'Output: High → Low', cmOutputAsc: 'Output: Low → High',
     input: 'Input', output: 'Output', perPage: 'per page', page: 'Page',
     footerSources: 'Data sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Found an issue? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Report it</a> or <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">submit a PR</a>',
@@ -262,7 +272,9 @@ const I18N = {
     colProvider: '제공사', colModel: '모델',
     colInput: '입력 $/1M', colOutput: '출력 $/1M', colCached: '캐시 $/1M',
     colContext: '컨텍스트', colMaxOutput: '최대 출력', colSource: '출처',
-    chartTitle: '입력 가격 상위 20개 모델 ($/1M 토큰)',
+    chartTitle: '상위 20개 모델 ($/1M 토큰)',
+    cmInputDesc: '입력: 높은순', cmInputAsc: '입력: 낮은순',
+    cmOutputDesc: '출력: 높은순', cmOutputAsc: '출력: 낮은순',
     input: '입력', output: '출력', perPage: '개씩', page: '페이지',
     footerSources: '데이터 소스: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '문제를 발견하셨나요? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">리포트</a> 또는 <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR 제출</a>',
@@ -300,7 +312,9 @@ const I18N = {
     colProvider: 'プロバイダー', colModel: 'モデル',
     colInput: '入力 $/1M', colOutput: '出力 $/1M', colCached: 'キャッシュ $/1M',
     colContext: 'コンテキスト', colMaxOutput: '最大出力', colSource: 'ソース',
-    chartTitle: '入力価格トップ20モデル ($/1Mトークン)',
+    chartTitle: 'トップ20モデル ($/1Mトークン)',
+    cmInputDesc: '入力: 高い順', cmInputAsc: '入力: 安い順',
+    cmOutputDesc: '出力: 高い順', cmOutputAsc: '出力: 安い順',
     input: '入力', output: '出力', perPage: '件表示', page: 'ページ',
     footerSources: 'データソース: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '問題を発見しましたか？ <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">報告</a>または<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR</a>',
@@ -338,7 +352,9 @@ const I18N = {
     colProvider: '提供商', colModel: '模型',
     colInput: '输入 $/1M', colOutput: '输出 $/1M', colCached: '缓存 $/1M',
     colContext: '上下文', colMaxOutput: '最大输出', colSource: '来源',
-    chartTitle: '输入价格前20名模型 ($/1M tokens)',
+    chartTitle: '前20名模型 ($/1M tokens)',
+    cmInputDesc: '输入: 从高到低', cmInputAsc: '输入: 从低到高',
+    cmOutputDesc: '输出: 从高到低', cmOutputAsc: '输出: 从低到高',
     input: '输入', output: '输出', perPage: '每页', page: '页',
     footerSources: '数据来源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '发现问题？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">报告</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
@@ -376,7 +392,9 @@ const I18N = {
     colProvider: '供應商', colModel: '模型',
     colInput: '輸入 $/1M', colOutput: '輸出 $/1M', colCached: '快取 $/1M',
     colContext: '上下文', colMaxOutput: '最大輸出', colSource: '來源',
-    chartTitle: '輸入價格前20名模型 ($/1M tokens)',
+    chartTitle: '前20名模型 ($/1M tokens)',
+    cmInputDesc: '輸入: 高→低', cmInputAsc: '輸入: 低→高',
+    cmOutputDesc: '輸出: 高→低', cmOutputAsc: '輸出: 低→高',
     input: '輸入', output: '輸出', perPage: '每頁', page: '頁',
     footerSources: '資料來源: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: '發現問題？<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">回報</a>或<a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">提交PR</a>',
@@ -407,7 +425,9 @@ const I18N = {
     hideFree: 'Ocultar gratis',
     colProvider: 'Proveedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Salida $/1M', colCached: 'Cache $/1M',
     colContext: 'Contexto', colMaxOutput: 'Max Salida', colSource: 'Fuente',
-    chartTitle: 'Top 20 modelos por precio de entrada ($/1M tokens)', input: 'Entrada', output: 'Salida', perPage: 'por pagina', page: 'Pagina',
+    chartTitle: 'Top 20 modelos ($/1M tokens)',
+    cmInputDesc: 'Entrada: Mayor→Menor', cmInputAsc: 'Entrada: Menor→Mayor',
+    cmOutputDesc: 'Salida: Mayor→Menor', cmOutputAsc: 'Salida: Menor→Mayor', input: 'Entrada', output: 'Salida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fuentes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontro un error? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> o <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
     yes: 'Si', no: 'No', free: 'GRATIS',
@@ -437,7 +457,9 @@ const I18N = {
     hideFree: 'Masquer gratuits',
     colProvider: 'Fournisseur', colModel: 'Modele', colInput: 'Entree $/1M', colOutput: 'Sortie $/1M', colCached: 'Cache $/1M',
     colContext: 'Contexte', colMaxOutput: 'Max Sortie', colSource: 'Source',
-    chartTitle: 'Top 20 modeles par prix d\'entree ($/1M tokens)', input: 'Entree', output: 'Sortie', perPage: 'par page', page: 'Page',
+    chartTitle: 'Top 20 modeles ($/1M tokens)',
+    cmInputDesc: 'Entree: Eleve→Bas', cmInputAsc: 'Entree: Bas→Eleve',
+    cmOutputDesc: 'Sortie: Eleve→Bas', cmOutputAsc: 'Sortie: Bas→Eleve', input: 'Entree', output: 'Sortie', perPage: 'par page', page: 'Page',
     footerSources: 'Sources: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Un probleme ? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Signaler</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">soumettre un PR</a>',
     yes: 'Oui', no: 'Non', free: 'GRATUIT',
@@ -467,7 +489,9 @@ const I18N = {
     hideFree: 'Kostenlose ausblenden',
     colProvider: 'Anbieter', colModel: 'Modell', colInput: 'Eingabe $/1M', colOutput: 'Ausgabe $/1M', colCached: 'Cache $/1M',
     colContext: 'Kontext', colMaxOutput: 'Max Ausgabe', colSource: 'Quelle',
-    chartTitle: 'Top 20 Modelle nach Eingabepreis ($/1M Tokens)', input: 'Eingabe', output: 'Ausgabe', perPage: 'pro Seite', page: 'Seite',
+    chartTitle: 'Top 20 Modelle ($/1M Tokens)',
+    cmInputDesc: 'Eingabe: Hoch→Niedrig', cmInputAsc: 'Eingabe: Niedrig→Hoch',
+    cmOutputDesc: 'Ausgabe: Hoch→Niedrig', cmOutputAsc: 'Ausgabe: Niedrig→Hoch', input: 'Eingabe', output: 'Ausgabe', perPage: 'pro Seite', page: 'Seite',
     footerSources: 'Datenquellen: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Fehler gefunden? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Melden</a> oder <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">PR einreichen</a>',
     yes: 'Ja', no: 'Nein', free: 'KOSTENLOS',
@@ -497,7 +521,9 @@ const I18N = {
     hideFree: 'Ocultar gratuitos',
     colProvider: 'Provedor', colModel: 'Modelo', colInput: 'Entrada $/1M', colOutput: 'Saida $/1M', colCached: 'Cache $/1M',
     colContext: 'Contexto', colMaxOutput: 'Max Saida', colSource: 'Fonte',
-    chartTitle: 'Top 20 modelos por preco de entrada ($/1M tokens)', input: 'Entrada', output: 'Saida', perPage: 'por pagina', page: 'Pagina',
+    chartTitle: 'Top 20 modelos ($/1M tokens)',
+    cmInputDesc: 'Entrada: Maior→Menor', cmInputAsc: 'Entrada: Menor→Maior',
+    cmOutputDesc: 'Saida: Maior→Menor', cmOutputAsc: 'Saida: Menor→Maior', input: 'Entrada', output: 'Saida', perPage: 'por pagina', page: 'Pagina',
     footerSources: 'Fontes: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Encontrou um problema? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Reportar</a> ou <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">enviar PR</a>',
     yes: 'Sim', no: 'Nao', free: 'GRATIS',
@@ -527,7 +553,9 @@ const I18N = {
     hideFree: 'Скрыть бесплатные',
     colProvider: 'Провайдер', colModel: 'Модель', colInput: 'Вход $/1M', colOutput: 'Выход $/1M', colCached: 'Кеш $/1M',
     colContext: 'Контекст', colMaxOutput: 'Макс выход', colSource: 'Источник',
-    chartTitle: 'Топ-20 моделей по цене входа ($/1M токенов)', input: 'Вход', output: 'Выход', perPage: 'на стр.', page: 'Стр.',
+    chartTitle: 'Топ-20 моделей ($/1M токенов)',
+    cmInputDesc: 'Вход: Высокие→Низкие', cmInputAsc: 'Вход: Низкие→Высокие',
+    cmOutputDesc: 'Выход: Высокие→Низкие', cmOutputAsc: 'Выход: Низкие→Высокие', input: 'Вход', output: 'Выход', perPage: 'на стр.', page: 'Стр.',
     footerSources: 'Источники: <a href="https://openrouter.ai/" target="_blank">OpenRouter API</a> &middot; <a href="https://github.com/pydantic/genai-prices" target="_blank">pydantic/genai-prices</a> &middot; <a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM</a>',
     footerIssue: 'Нашли ошибку? <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/issues" target="_blank">Сообщить</a> или <a href="https://github.com/ai-model-price-tracker/ai-model-price-tracker/pulls" target="_blank">отправить PR</a>',
     yes: 'Да', no: 'Нет', free: 'БЕСПЛАТНО',
@@ -606,6 +634,10 @@ function applyI18n() {
   document.getElementById('chartTitle').textContent = t('chartTitle');
   document.getElementById('legendInput').textContent = t('input');
   document.getElementById('legendOutput').textContent = t('output');
+  document.getElementById('cmInputDesc').textContent = t('cmInputDesc');
+  document.getElementById('cmInputAsc').textContent = t('cmInputAsc');
+  document.getElementById('cmOutputDesc').textContent = t('cmOutputDesc');
+  document.getElementById('cmOutputAsc').textContent = t('cmOutputAsc');
   document.getElementById('footerSources').innerHTML = t('footerSources');
   document.getElementById('footerIssue').innerHTML = t('footerIssue');
   const pf = document.getElementById('providerFilter');
@@ -671,6 +703,7 @@ async function init() {
   document.getElementById('providerFilter').addEventListener('change', applyFilters);
   document.getElementById('sourceFilter').addEventListener('change', applyFilters);
   document.getElementById('hideFree').addEventListener('change', applyFilters);
+  document.getElementById('chartMode').addEventListener('change', renderChart);
 
   // Event delegation for table row clicks
   document.getElementById('tableBody').addEventListener('click', (e) => {
@@ -878,15 +911,19 @@ function renderTable(models) {
 
 function renderChart() {
   const chart = document.getElementById('chart');
-  // Deduplicate: for models appearing in multiple sources, keep highest input price
+  const mode = document.getElementById('chartMode').value;
+  const [field, dir] = mode.split('-'); // 'input'|'output', 'desc'|'asc'
+  const priceKey = field === 'output' ? 'output_price_per_1m' : 'input_price_per_1m';
+
+  // Deduplicate: keep the entry with highest price for that field
   const byName = new Map();
   for (const m of allModels) {
     if (!m.input_price_per_1m || m.input_price_per_1m <= 0 || !m.output_price_per_1m || m.output_price_per_1m <= 0) continue;
     const key = m.name;
-    if (!byName.has(key) || byName.get(key).input_price_per_1m < m.input_price_per_1m) byName.set(key, m);
+    if (!byName.has(key) || byName.get(key)[priceKey] < m[priceKey]) byName.set(key, m);
   }
   const priced = [...byName.values()]
-    .sort((a, b) => b.input_price_per_1m - a.input_price_per_1m)
+    .sort((a, b) => dir === 'asc' ? a[priceKey] - b[priceKey] : b[priceKey] - a[priceKey])
     .slice(0, 20);
   if (priced.length === 0) return;
   const maxPrice = Math.max(...priced.map(m => Math.max(m.input_price_per_1m, m.output_price_per_1m)));
