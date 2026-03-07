@@ -37,10 +37,12 @@
   .count { font-size: 0.85em; color: var(--fg2); margin-left: auto; }
   table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85em; }
   th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td.model-name { white-space: normal; word-break: break-all; max-width: 280px; }
   th { background: var(--bg2); cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1; font-weight: 600; }
   th:hover { color: var(--accent); }
   th .arrow { font-size: 0.7em; margin-left: 4px; }
-  th .tip { cursor: help; font-size: 0.7em; color: var(--fg2); border: 1px solid var(--border); border-radius: 50%; padding: 0 4px; margin-left: 4px; vertical-align: super; }
+  th .tip { cursor: help; font-size: 0.7em; color: var(--fg2); border: 1px solid var(--border); border-radius: 50%; padding: 0 4px; margin-left: 4px; vertical-align: super; position: relative; }
+  th .tip:hover::after { content: attr(data-tip); position: absolute; left: 50%; top: 120%; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 4px 10px; border-radius: 6px; font-size: 1.1em; font-weight: 400; white-space: nowrap; z-index: 10; pointer-events: none; }
   tr:hover { background: var(--bg2); }
   .price { font-variant-numeric: tabular-nums; }
   .price-low { color: var(--green); }
@@ -527,7 +529,7 @@ function buildTableHead() {
   for (const col of getColumns()) {
     const th = document.createElement('th');
     th.textContent = col.label;
-    if (col.tip) th.innerHTML += `<span class="tip" title="${esc(col.tip)}">?</span>`;
+    if (col.tip) th.innerHTML += `<span class="tip" data-tip="${esc(col.tip)}">?</span>`;
     th.dataset.key = col.key;
     if (col.key === sortKey) th.innerHTML += `<span class="arrow">${sortAsc ? '&#9650;' : '&#9660;'}</span>`;
     th.addEventListener('click', () => {
@@ -601,7 +603,7 @@ function renderTable(models) {
       : `<span class="source-tag">${esc(sourceInfo.label)}</span>`;
     tr.innerHTML = `
       <td>${providerCell}</td>
-      <td>${esc(m.name)}</td>
+      <td class="model-name">${esc(m.name)}</td>
       <td class="price ${priceClass(m.input_price_per_1m, maxInput)}">${isFree ? `<span class="free-tag">${t('free')}</span>` : '$' + fmt(m.input_price_per_1m)}</td>
       <td class="price ${priceClass(m.output_price_per_1m, maxInput)}">${isFree ? '-' : '$' + fmt(m.output_price_per_1m)}</td>
       <td class="price">${m.cached_input_price_per_1m != null ? '$' + fmt(m.cached_input_price_per_1m) : '-'}</td>
