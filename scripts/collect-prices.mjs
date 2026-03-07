@@ -69,36 +69,57 @@ function parseOpenRouterProvider(modelId) {
   return parts.length >= 2 ? parts[0].toLowerCase() : 'unknown';
 }
 
-// OpenRouter: pricing.prompt / pricing.completion = USD per token
-// e.g. GPT-4o: prompt=0.0000025 → × 1,000,000 = $2.5/1M tokens
+// OpenRouter: pricing fields are USD per token → × 1,000,000 = USD per 1M tokens
+// e.g. GPT-4o: prompt=0.0000025 → $2.5/1M tokens
 function processOpenRouterModels(raw) {
   if (!raw?.data || !Array.isArray(raw.data)) {
     log('[WARN] OpenRouter response missing data array');
     return [];
   }
 
+  const toPrice = (v) => {
+    if (!v || v === '0') return null;
+    const n = parseFloat(v) * 1_000_000;
+    return isNaN(n) ? null : round(n);
+  };
+
   return raw.data
     .filter(m => m.pricing)
     .map(m => {
       const providerSlug = parseOpenRouterProvider(m.id);
-      // USD per token → USD per 1M tokens
-      const inputPrice = parseFloat(m.pricing.prompt || '0') * 1_000_000;
-      const outputPrice = parseFloat(m.pricing.completion || '0') * 1_000_000;
-      const cachedInput = m.pricing.input_cache_read
-        ? parseFloat(m.pricing.input_cache_read) * 1_000_000
-        : null;
+      const p = m.pricing;
+      const arch = m.architecture || {};
 
       return {
         provider: providerSlug,
         id: m.id,
         name: m.name || m.id,
-        input_price_per_1m: round(inputPrice),
-        output_price_per_1m: round(outputPrice),
-        cached_input_price_per_1m: cachedInput !== null ? round(cachedInput) : null,
+        description: m.description || null,
+        created: m.created || null,
+
+        // Pricing — all converted from USD/token → USD/1M tokens
+        input_price_per_1m: toPrice(p.prompt),
+        output_price_per_1m: toPrice(p.completion),
+        cached_input_price_per_1m: toPrice(p.input_cache_read),
+        input_cache_write_price_per_1m: toPrice(p.input_cache_write),
+        image_price_per_1m: toPrice(p.image),
+        web_search_price_per_request: p.web_search ? parseFloat(p.web_search) : null,
+        internal_reasoning_price_per_1m: toPrice(p.internal_reasoning),
+        audio_price_per_1m: toPrice(p.audio),
+
+        // Architecture
         context_length: m.context_length || null,
-        supports_vision: m.architecture?.input_modalities?.includes('image') ?? false,
+        max_completion_tokens: m.top_provider?.max_completion_tokens || null,
+        input_modalities: arch.input_modalities || null,
+        output_modalities: arch.output_modalities || null,
+        tokenizer: arch.tokenizer || null,
+
+        // Capabilities
+        supports_vision: arch.input_modalities?.includes('image') ?? false,
         supports_function_calling: Array.isArray(m.supported_parameters) && m.supported_parameters.includes('tools'),
         supports_streaming: true,
+        supported_parameters: m.supported_parameters || null,
+
         source: 'openrouter',
       };
     });
@@ -114,8 +135,8 @@ function extractPrice(value) {
   return isNaN(n) ? null : n;
 }
 
-// genai-prices: prices.input_mtok / prices.output_mtok = USD per 1M tokens (already target unit)
-// e.g. GPT-4o: input_mtok=2.5 → $2.5/1M tokens (no conversion needed)
+// genai-prices: prices are already in USD per 1M tokens — no conversion needed
+// e.g. GPT-4o: input_mtok=2.5 → $2.5/1M tokens
 function processGenAIPrices(raw) {
   if (!Array.isArray(raw)) {
     log('[WARN] genai-prices response is not an array');
@@ -128,19 +149,26 @@ function processGenAIPrices(raw) {
     if (!provider.models) continue;
 
     for (const m of provider.models) {
+      if (!m || typeof m !== 'object') continue;
       const prices = m.prices || {};
-      // Already in USD per 1M tokens — no conversion
-      const inp = extractPrice(prices.input_mtok);
-      const out = extractPrice(prices.output_mtok);
-      const cached = extractPrice(prices.cache_read_mtok);
+      const ep = (v) => { const n = extractPrice(v); return n != null ? round(n) : null; };
+
       models.push({
         provider: slug,
         id: `${slug}/${m.id}`,
         name: m.name || m.id,
-        input_price_per_1m: inp != null ? round(inp) : null,
-        output_price_per_1m: out != null ? round(out) : null,
-        cached_input_price_per_1m: cached != null ? round(cached) : null,
+
+        // Already USD per 1M tokens
+        input_price_per_1m: ep(prices.input_mtok),
+        output_price_per_1m: ep(prices.output_mtok),
+        cached_input_price_per_1m: ep(prices.cache_read_mtok),
+        input_cache_write_price_per_1m: ep(prices.cache_write_mtok),
+        input_audio_price_per_1m: ep(prices.input_audio_mtok),
+        output_audio_price_per_1m: ep(prices.output_audio_mtok),
+        cache_audio_read_price_per_1m: ep(prices.cache_audio_read_mtok),
+
         context_length: m.context_window || null,
+        deprecated: m.deprecated === true,
         supports_vision: false,
         supports_function_calling: false,
         supports_streaming: true,
@@ -167,42 +195,62 @@ function normalizeLiteLLMProvider(litellmProvider) {
   return p;
 }
 
-// LiteLLM: input_cost_per_token / output_cost_per_token = USD per token
-// e.g. GPT-4o: input_cost_per_token=0.0000025 → × 1,000,000 = $2.5/1M tokens
-// ⚠ Some providers (e.g. wandb) have incorrect values in upstream data
-//   (e.g. 0.135 per token = $135,000/1M). These are caught by the price sanity filter.
+// LiteLLM: cost fields are USD per token → × 1,000,000 = USD per 1M tokens
+// e.g. GPT-4o: input_cost_per_token=0.0000025 → $2.5/1M tokens
+// ⚠ Some providers (e.g. wandb) have incorrect values in upstream data.
+//   These are caught by the price sanity filter after merge.
 function processLiteLLMModels(raw) {
   if (!raw || typeof raw !== 'object') {
     log('[WARN] LiteLLM response is not an object');
     return [];
   }
 
+  // USD per token → USD per 1M tokens
+  const to1M = (v) => v != null ? round(v * 1_000_000) : null;
+
   const models = [];
   for (const [key, v] of Object.entries(raw)) {
     if (key === 'sample_spec') continue;
-    // Only include chat models with token pricing
     if (v.mode !== 'chat') continue;
-    if (!v.input_cost_per_token || !v.output_cost_per_token) continue;
+    if (!v.input_cost_per_token && !v.output_cost_per_token) continue;
 
     const providerSlug = normalizeLiteLLMProvider(v.litellm_provider);
-    // USD per token → USD per 1M tokens
-    const inputPrice = v.input_cost_per_token * 1_000_000;
-    const outputPrice = v.output_cost_per_token * 1_000_000;
-    const cachedInput = v.cache_read_input_token_cost
-      ? v.cache_read_input_token_cost * 1_000_000
-      : null;
 
     models.push({
       provider: providerSlug,
       id: `${providerSlug}/${key}`,
       name: key,
-      input_price_per_1m: round(inputPrice),
-      output_price_per_1m: round(outputPrice),
-      cached_input_price_per_1m: cachedInput !== null ? round(cachedInput) : null,
+
+      // Pricing — USD per token → USD per 1M tokens
+      input_price_per_1m: to1M(v.input_cost_per_token),
+      output_price_per_1m: to1M(v.output_cost_per_token),
+      cached_input_price_per_1m: to1M(v.cache_read_input_token_cost),
+      input_cache_write_price_per_1m: to1M(v.cache_creation_input_token_cost),
+      batch_input_price_per_1m: to1M(v.input_cost_per_token_batches),
+      batch_output_price_per_1m: to1M(v.output_cost_per_token_batches),
+      input_audio_price_per_1m: to1M(v.input_cost_per_audio_token),
+      output_audio_price_per_1m: to1M(v.output_cost_per_audio_token),
+      output_reasoning_price_per_1m: to1M(v.output_cost_per_reasoning_token),
+
+      // Limits
       context_length: v.max_input_tokens || v.max_tokens || null,
+      max_output_tokens: v.max_output_tokens || null,
+      max_images_per_prompt: v.max_images_per_prompt || null,
+
+      // Capabilities
       supports_vision: v.supports_vision === true,
       supports_function_calling: v.supports_function_calling === true,
-      supports_streaming: true,
+      supports_parallel_function_calling: v.supports_parallel_function_calling === true,
+      supports_response_schema: v.supports_response_schema === true,
+      supports_prompt_caching: v.supports_prompt_caching === true,
+      supports_pdf_input: v.supports_pdf_input === true,
+      supports_audio_input: v.supports_audio_input === true,
+      supports_audio_output: v.supports_audio_output === true,
+      supports_web_search: v.supports_web_search === true,
+      supports_reasoning: v.supports_reasoning === true,
+      supports_computer_use: v.supports_computer_use === true,
+      supports_streaming: v.supports_native_streaming !== false,
+
       source: 'litellm',
     });
   }
@@ -223,52 +271,55 @@ function loadOfficialScrapedData() {
   }
 }
 
+// Merge a supplementary model into an existing one: fill null fields, upgrade false→true booleans
+function enrichModel(existing, supplement) {
+  for (const [k, v] of Object.entries(supplement)) {
+    if (k === 'provider' || k === 'id' || k === 'source') continue;
+    if (v == null || v === false) continue;
+    // Fill nulls
+    if (existing[k] == null) {
+      existing[k] = v;
+    }
+    // Upgrade false → true for boolean capabilities
+    else if (existing[k] === false && v === true) {
+      existing[k] = v;
+    }
+  }
+}
+
 function mergeModels(openRouterModels, genaiModels, litellmModels, officialModels) {
   const map = new Map();
 
-  // OpenRouter first (primary)
+  // OpenRouter first (primary — richest metadata: description, modalities, pricing)
   for (const m of openRouterModels) {
     map.set(m.id.toLowerCase(), m);
   }
 
-  // genai-prices supplements: add if missing, or enrich cache pricing
+  // genai-prices supplements: fill missing fields (audio pricing, cache write pricing)
   for (const m of genaiModels) {
     const key = m.id.toLowerCase();
     if (map.has(key)) {
-      const existing = map.get(key);
-      if (existing.cached_input_price_per_1m == null && m.cached_input_price_per_1m != null) {
-        existing.cached_input_price_per_1m = m.cached_input_price_per_1m;
-      }
+      enrichModel(map.get(key), m);
     } else {
       map.set(key, m);
     }
   }
 
-  // LiteLLM supplements: add if missing, or enrich capabilities/cache pricing
+  // LiteLLM supplements: fill missing fields (capabilities, batch pricing, reasoning, etc.)
   for (const m of litellmModels) {
     const key = m.id.toLowerCase();
     if (map.has(key)) {
-      const existing = map.get(key);
-      if (existing.cached_input_price_per_1m == null && m.cached_input_price_per_1m != null) {
-        existing.cached_input_price_per_1m = m.cached_input_price_per_1m;
-      }
-      if (!existing.supports_vision && m.supports_vision) {
-        existing.supports_vision = true;
-      }
-      if (!existing.supports_function_calling && m.supports_function_calling) {
-        existing.supports_function_calling = true;
-      }
+      enrichModel(map.get(key), m);
     } else {
       map.set(key, m);
     }
   }
 
-  // Official scraped data: highest trust - overwrite prices if exists
+  // Official scraped data: highest trust — overwrite prices
   for (const m of officialModels) {
     const key = m.id.toLowerCase();
     if (map.has(key)) {
       const existing = map.get(key);
-      // Official prices override aggregator prices
       if (m.input_price_per_1m != null) existing.input_price_per_1m = m.input_price_per_1m;
       if (m.output_price_per_1m != null) existing.output_price_per_1m = m.output_price_per_1m;
       if (m.cached_input_price_per_1m != null) existing.cached_input_price_per_1m = m.cached_input_price_per_1m;
