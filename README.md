@@ -94,12 +94,12 @@ Use this data to answer questions about AI model pricing, compare costs, and rec
 flowchart TD
     GH["⏰ GitHub Actions (Daily)"]
 
-    OR["OpenRouter API\n350+ models"]
-    GP["genai-prices\n1,000+ models"]
-    LL["LiteLLM\n1,800+ models"]
-    PW["🎭 Playwright\nOfficial Scrapers"]
+    OR["OpenRouter API<br/>350+ models"]
+    GP["genai-prices<br/>1,000+ models"]
+    LL["LiteLLM<br/>1,800+ models"]
+    PW["🎭 Playwright<br/>Official Scrapers"]
 
-    COMBINE["Combine — keep all sources\n+ price sanity filter ($1000/1M cap)"]
+    COMBINE["Combine — keep all sources<br/>+ price sanity filter ($1000/1M cap)"]
     OFFICIAL["docs/data/official-prices.json"]
 
     OUT1["docs/data/latest.json"]
