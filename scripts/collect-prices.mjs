@@ -12,6 +12,11 @@ const SLUG_ALIASES = {
   bedrock_converse: 'amazon',
   bedrock_mantle: 'amazon',
   amazon_nova: 'amazon',
+  aws: 'amazon',
+  azure_ai: 'azure',
+  fireworks_ai: 'fireworks',
+  vertex_ai: 'google',
+  vertex_ai_beta: 'google',
 };
 
 function normalizeSlug(slug) {

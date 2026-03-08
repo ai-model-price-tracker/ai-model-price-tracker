@@ -20,21 +20,39 @@ export async function scrape(page) {
   const tables = await extractTables(page);
 
   for (const table of tables) {
-    for (const row of table) {
+    const headers = table[0]?.map(h => h.toLowerCase()) || [];
+    const inputCol = headers.findIndex(h => h.includes('input'));
+    const outputCol = headers.findIndex(h => h.includes('output'));
+
+    for (let i = (inputCol >= 0 || outputCol >= 0) ? 1 : 0; i < table.length; i++) {
+      const row = table[i];
       const rowText = row.join(' ');
       for (const pattern of MODEL_PATTERNS) {
         const match = rowText.match(pattern);
         if (!match) continue;
 
         const modelName = match[0];
-        const prices = [...rowText.matchAll(/\$([0-9.]+)/g)].map(m => parseFloat(m[1]));
-        if (prices.length >= 2 && !models.some(m => m.name === modelName)) {
+
+        // Use column indices if headers detected, otherwise fall back to positional extraction
+        let inputPrice, outputPrice;
+        if (inputCol >= 0 && outputCol >= 0) {
+          const ip = row[inputCol]?.match(/\$?([0-9.]+)/);
+          const op = row[outputCol]?.match(/\$?([0-9.]+)/);
+          inputPrice = ip ? parseFloat(ip[1]) : null;
+          outputPrice = op ? parseFloat(op[1]) : null;
+        } else {
+          const prices = [...rowText.matchAll(/\$([0-9.]+)/g)].map(m => parseFloat(m[1]));
+          inputPrice = prices[0] ?? null;
+          outputPrice = prices[1] ?? null;
+        }
+
+        if (inputPrice != null && outputPrice != null && !models.some(m => m.name === modelName)) {
           models.push({
             provider: 'mistral',
             id: `mistralai/${modelName.toLowerCase().replace(/\s+/g, '-')}`,
             name: modelName,
-            input_price_per_1m: round(prices[0]),
-            output_price_per_1m: round(prices[1]),
+            input_price_per_1m: round(inputPrice),
+            output_price_per_1m: round(outputPrice),
             cached_input_price_per_1m: null,
             context_length: null,
             supports_vision: modelName.toLowerCase().includes('pixtral'),

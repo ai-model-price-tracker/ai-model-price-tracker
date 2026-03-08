@@ -2,10 +2,10 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
 const cwd = process.cwd();
-const latestPath = resolve(cwd, 'outputs', 'latest.json');
+const latestPath = resolve(cwd, 'docs', 'data', 'latest.json');
 
 if (!existsSync(latestPath)) {
-  console.error('outputs/latest.json not found');
+  console.error('docs/data/latest.json not found');
   process.exit(1);
 }
 
